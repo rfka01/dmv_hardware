@@ -14,8 +14,8 @@
 ;   4  firmware without LOW (first patch version); click switched on
 ;
 ; Requires MS-DOS 2.0 or later on the DMV with 8088/V20 card
-; (K230/K231/K235) and the patched mainboard keyboard controller
-; (8741, ROM 32678 with key click patch).
+; (K230/K231/K235) and the mainboard keyboard controller with the
+; firmware EXTKB (8741, replaces ROM 32678; Keyclick v4 works as well).
 ;
 ; Hardware:
 ;   The click comes from the speaker on the mainboard, driven by P2.0
@@ -75,10 +75,10 @@ msgon   db      'Tastaturklick ist AN',13,10,'$'
 msgoff  db      'Tastaturklick ist AUS',13,10,'$'
 msglow  db      'Tastaturklick ist LOW',13,10,'$'
 msgnolo db      'Diese Version des Klick-Patches kennt LOW noch nicht.',13,10
-        db      'Der Klick bleibt AN. Bitte das neue ROM einsetzen.',13,10,'$'
+        db      'Der Klick bleibt AN. Bitte die Firmware EXTKB einsetzen.',13,10,'$'
 msgnop  db      'Der Tastatur-Controller (8741 auf der Hauptplatine) hat die',13,10
-        db      'Originalfirmware ohne Klick-Schalter. KEYCLICK braucht das',13,10
-        db      'gepatchte ROM 32678 (DMV_MB_8741_32678_KEYCLICK.BIN).',13,10,'$'
+        db      'Originalfirmware ohne Klick-Schalter. KEYCLICK braucht die',13,10
+        db      'Firmware EXTKB (DMV_MB_8741_32678_EXTKB.BIN).',13,10,'$'
 msgtime db      'Der Tastatur-Controller antwortet nicht.',13,10,'$'
 msguse  db      'KEYCLICK - Tastaturklick der NCR Decision Mate V',13,10
         db      13,10

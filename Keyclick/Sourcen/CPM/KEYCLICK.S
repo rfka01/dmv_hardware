@@ -7,8 +7,9 @@
 |   KEYCLICK OFF        key click off
 |   KEYCLICK LOW        just a faint tick
 |
-| Runs on the 68008 of the K234 under CP/M-68K and needs the patched
-| mainboard keyboard controller (8741, ROM 32678 with key click patch).
+| Runs on the 68008 of the K234 under CP/M-68K and needs the mainboard
+| keyboard controller with the firmware EXTKB (8741, replaces ROM 32678;
+| Keyclick v4 works as well).
 |
 | Hardware:
 |   The K234 sees the DMV I/O ports at FFF00h + port, so the 8741 is at
@@ -213,10 +214,10 @@ msgoff: .ascii  "Tastaturklick ist AUS\r\n$"
 msglow: .ascii  "Tastaturklick ist LOW\r\n$"
 msgnolo:
         .ascii  "Diese Version des Klick-Patches kennt LOW noch nicht.\r\n"
-        .ascii  "Der Klick bleibt AN. Bitte das neue ROM einsetzen.\r\n$"
+        .ascii  "Der Klick bleibt AN. Bitte die Firmware EXTKB einsetzen.\r\n$"
 msgnop: .ascii  "Der Tastatur-Controller (8741 auf der Hauptplatine) hat die\r\n"
-        .ascii  "Originalfirmware ohne Klick-Schalter. KEYCLICK braucht das\r\n"
-        .ascii  "gepatchte ROM 32678 (DMV_MB_8741_32678_KEYCLICK.BIN).\r\n$"
+        .ascii  "Originalfirmware ohne Klick-Schalter. KEYCLICK braucht die\r\n"
+        .ascii  "Firmware EXTKB (DMV_MB_8741_32678_EXTKB.BIN).\r\n$"
 msgtime:
         .ascii  "Der Tastatur-Controller antwortet nicht.\r\n$"
 msguse: .ascii  "KEYCLICK - Tastaturklick der NCR Decision Mate V\r\n"

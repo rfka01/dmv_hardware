@@ -8,8 +8,8 @@
 ;   KEYCLICK LOW        just a faint tick
 ;
 ; Runs on the Z80 of the mainboard under CP/M-80 2.2 and needs the
-; patched mainboard keyboard controller (8741, ROM 32678 with key
-; click patch).
+; mainboard keyboard controller with the firmware EXTKB (8741, replaces
+; ROM 32678; Keyclick v4 works as well).
 ;
 ; Hardware:
 ;   The click comes from the speaker on the mainboard, driven by P2.0
@@ -236,10 +236,10 @@ MSGOFF: DB      'Tastaturklick ist AUS',13,10,'$'
 MSGLOW: DB      'Tastaturklick ist LOW',13,10,'$'
 MSGNOLO:
         DB      'Diese Version des Klick-Patches kennt LOW noch nicht.',13,10
-        DB      'Der Klick bleibt AN. Bitte das neue ROM einsetzen.',13,10,'$'
+        DB      'Der Klick bleibt AN. Bitte die Firmware EXTKB einsetzen.',13,10,'$'
 MSGNOP: DB      'Der Tastatur-Controller (8741 auf der Hauptplatine) hat die',13,10
-        DB      'Originalfirmware ohne Klick-Schalter. KEYCLICK braucht das',13,10
-        DB      'gepatchte ROM 32678 (DMV_MB_8741_32678_KEYCLICK.BIN).',13,10,'$'
+        DB      'Originalfirmware ohne Klick-Schalter. KEYCLICK braucht die',13,10
+        DB      'Firmware EXTKB (DMV_MB_8741_32678_EXTKB.BIN).',13,10,'$'
 MSGTIME:
         DB      'Der Tastatur-Controller antwortet nicht.',13,10,'$'
 MSGUSE: DB      'KEYCLICK - Tastaturklick der NCR Decision Mate V',13,10

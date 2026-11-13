@@ -2,8 +2,9 @@ KEYCLICK - Tastaturklick der NCR Decision Mate V an- und ausschalten
 =====================================================================
 
 Fuer MS-DOS ab 2.0 auf der DMV mit 8088/V20-Karte (K230/K231/K235).
-Voraussetzung ist der gepatchte Tastatur-Controller auf der
-Hauptplatine (8741, ROM 32678 mit Klick-Patch).
+Voraussetzung ist die Firmware EXTKB im Tastatur-Controller auf der
+Hauptplatine (8741, ersetzt ROM 32678; DMV_MB_8741_32678_EXTKB.BIN).
+Die fruehere Firmware Keyclick v4 funktioniert ebenso.
 
 Aufruf
 ------

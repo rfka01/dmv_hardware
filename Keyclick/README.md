@@ -24,7 +24,7 @@ KEYCLICK OFF    Tastaturklick aus
 KEYCLICK LOW    nur ein leiser Knack
 ```
 
-Unter DOS liefert KEYCLICK einen ERRORLEVEL: 0 erledigt, 1 falscher Parameter, 2 Originalfirmware (die Meldung nennt noch den alten Dateinamen `DMV_MB_8741_32678_KEYCLICK.BIN`; gemeint ist heute EXTKB), 3 keine Antwort, 4 erste Patch-Version ohne LOW. Nach jedem Reset ist der Klick wieder an; wer ihn nie hören will, schreibt `KEYCLICK OFF` in die AUTOEXEC.BAT. Bell und Musik (`ESC M`) bleiben unverändert.
+Unter DOS liefert KEYCLICK einen ERRORLEVEL: 0 erledigt, 1 falscher Parameter, 2 Originalfirmware, 3 keine Antwort, 4 erste Patch-Version ohne LOW. Nach jedem Reset ist der Klick wieder an; wer ihn nie hören will, schreibt `KEYCLICK OFF` in die AUTOEXEC.BAT. Bell und Musik (`ESC M`) bleiben unverändert.
 
 ### Wie es funktioniert
 
@@ -66,7 +66,7 @@ KEYCLICK OFF    key click off
 KEYCLICK LOW    just a faint tick
 ```
 
-Under DOS KEYCLICK returns an ERRORLEVEL: 0 done, 1 wrong parameter, 2 original firmware (the message still names the old file `DMV_MB_8741_32678_KEYCLICK.BIN`; today that is EXTKB), 3 no answer, 4 first patch version without LOW. The click is on again after every reset; put `KEYCLICK OFF` into AUTOEXEC.BAT to never hear it. Bell and music (`ESC M`) are not affected.
+Under DOS KEYCLICK returns an ERRORLEVEL: 0 done, 1 wrong parameter, 2 original firmware, 3 no answer, 4 first patch version without LOW. The click is on again after every reset; put `KEYCLICK OFF` into AUTOEXEC.BAT to never hear it. Bell and music (`ESC M`) are not affected.
 
 ### How it works
 

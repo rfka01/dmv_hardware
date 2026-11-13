@@ -5,8 +5,9 @@ KEYCLICK - Tastaturklick der NCR Decision Mate V unter CP/M
   KEYCLICK.CMD    CP/M-86  (8088/V20-Karte K230/K231/K235)
   KEYCLICK.68K    CP/M-68K (68008-Karte K234)
 
-Alle drei brauchen den gepatchten Tastatur-Controller auf der
-Hauptplatine (8741, ROM 32678 mit Klick-Patch).
+Alle drei brauchen die Firmware EXTKB im Tastatur-Controller auf der
+Hauptplatine (8741, ersetzt ROM 32678; DMV_MB_8741_32678_EXTKB.BIN).
+Die fruehere Firmware Keyclick v4 funktioniert ebenso.
 
 Aufruf
 ------
@@ -56,8 +57,9 @@ KEYCLICK - key click of the NCR Decision Mate V under CP/M
   KEYCLICK.CMD    CP/M-86  (8088/V20 card K230/K231/K235)
   KEYCLICK.68K    CP/M-68K (68008 card K234)
 
-All three need the patched keyboard controller on the mainboard
-(8741, ROM 32678 with key click patch).
+All three need the firmware EXTKB in the keyboard controller on the
+mainboard (8741, replaces ROM 32678; DMV_MB_8741_32678_EXTKB.BIN).
+The earlier Keyclick v4 firmware works as well.
 
 Usage
 -----
