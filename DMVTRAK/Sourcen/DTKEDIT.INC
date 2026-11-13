@@ -101,6 +101,13 @@ begin
   Put(RX, Y, Pad(S, 79 - RX));
 end;
 
+function SrcShow: Str80;          { geladene Datei mit Format }
+begin
+  if SrcName = '' then SrcShow := FileName
+  else if SrcFmt = '' then SrcShow := SrcName
+  else SrcShow := SrcName + ' (' + SrcFmt + ')';
+end;
+
 procedure BuildLine(Y: integer);
 var S: Str80;
     K: integer;
@@ -112,7 +119,7 @@ begin
          if Modified then S := Pad(S, 66) + '(geaendert)';
          Want[0] := S;
        end;
-    1: Want[1] := 'Lied: ' + Pad(Title, 22) + '  Datei: ' + FileName;
+    1: Want[1] := 'Lied: ' + Pad(Title, 22) + '  Datei: ' + SrcShow;
     2: begin
          S := 'Zl  ';
          for K := 0 to VisCh - 1 do
@@ -123,7 +130,7 @@ begin
        end;
     20: Want[20] := 'Pfeile Zelle  TAB Kanal  < > Position  + - Oktave  Leertaste Spielen/Stopp';
     21: Want[21] := 'Noten Y S X D C V G B H N J M , / Q 2 W 3 E R 5 T 6 Z 7 U I  . loeschen 1 aus';
-    22: Want[22] := 'Hex-Felder 0-9 A-F   RETURN Lied von vorn   ESC Menue (Laden, Speichern ...)';
+    22: Want[22] := 'Hex 0-9 A-F  RETURN Lied von vorn  ESC Menue (Laden, Speichern) - ESC E Ende';
     23: Want[23] := Msg;
   else
     Want[Y] := '';
@@ -461,7 +468,7 @@ begin
   SetMsg('Lade ' + S + ' ...');
   Refresh; Show;
   if LoadAny(S) then
-    SetMsg('Geladen: ' + FileName + ', ' + IStr(NPat) + ' Patterns, ' +
+    SetMsg('Geladen: ' + SrcShow + ', ' + IStr(NPat) + ' Patterns, ' +
            IStr(NChan) + ' Kanaele')
   else
     SetMsg(LastErr);
@@ -516,7 +523,7 @@ begin
            SideDirty;
            if UseSyn then SetMsg('Klang: Synthesizer (3 Stimmen + Rauschen)')
            else if SynAvail and PitOk then SetMsg('Klang: eine Stimme ueber Befehl 06h')
-           else SetMsg('Keine Synthesizer-Firmware im 8741 - nur eine Stimme');
+           else SetMsg('Keine Firmware EXTKB im 8741 - nur eine Stimme');
          end;
     'T': begin
            if InputNum('Speed (Ticks je Zeile, 1-31): ', InitSpd, 1, 31, V) then
@@ -767,43 +774,116 @@ end;
 
 { ---------------- reiner Abspielbetrieb (DMVTRAK datei /P) ---------------- }
 
+function TimeStr: Str20;          { Spielzeit m:ss }
+begin
+  TimeStr := IStr(ESec div 60) + ':' + Chr(48 + (ESec mod 60) div 10) +
+             Chr(48 + ESec mod 10);
+end;
+
 procedure PlayerMode;
-var K, C: integer;
-    S: Str80;
+var K, C, LastO, LastS: integer;
+    S, St: Str80;
+    Stopped, Fin: boolean;
+
+  procedure ShowState;
+  begin
+    if Stopped then St := 'Stopp' else if Paused then St := 'Pause' else St := '';
+    S := 'Zeit ' + TimeStr + '   Position ' + Dec2(NowO) + '/' + Dec2(SongLen) +
+         '  Pattern ' + Dec2(Order[NowO]);
+    if CovMode then S := S + '  ' + IStr(CovRate) + ' Hz  Aussetzer ' + IStr(MemW[CovSeg:$1010]);
+    Want[3] := Pad(S, 64) + St;
+    LastS := ESec; LastO := NowO;
+  end;
+
 begin
   EditActive := false;
   ScrReset; ScrBlank;
-  Want[0] := 'DMVTRAK ' + Version + ' spielt ' + FileName;
+  Want[0] := 'DMVTRAK ' + Version + ' spielt ' + SrcShow;
   Want[1] := 'Lied: ' + Title;
-  if UseSyn then S := 'Synthesizer (3 Stimmen + Rauschen)'
+  if CovWant then
+  begin
+    S := 'Covox, Samples ' + IStr(SmpLoaded) + '/' + IStr(SmpTotal);
+  end
+  else if UseSyn then S := 'Synthesizer (3 Stimmen + Rauschen)'
   else if ArpMode then S := '1 Stimme, Arpeggio' else S := '1 Stimme, fuehrend';
+  if not CovWant and not SynAvail then S := S + ' (ohne Firmware EXTKB)';
   Want[2] := IStr(NChan) + ' Kanaele, ' + IStr(SongLen) + ' Positionen, ' + S;
-  Want[6] := 'Leertaste oder ESC: Ende';
-  CurX := 0; CurY := 7;
+  Want[6] := 'Leertaste Pause/weiter  RETURN von vorn  S Stopp  ' +
+             '<- -> 10 s  ESC Ende';
+  if CovWant then Want[7] := '+ - Abtastrate um 500 Hz hoeher/tiefer (2000..6400 Hz)';
+  CurX := 0; CurY := 8;
   Flush;
+  LastO := -1; LastS := -1;
+  Stopped := false; Fin := false;
   PlayStart(0, 0, true);
-  K := 0;
-  while Playing and (K = 0) do
+  if CovMode and not CovIrq then
+  begin
+    PlayStop;
+    Want[4] := 'Kein Timer-Interrupt (IRQ0) - Covox braucht die K235.';
+    Flush;
+    ConOut(#13); ConOut(#10);
+    exit;
+  end;
+  ShowState; Flush;
+  while Playing and not Fin do
   begin
     PlayService;
     if NowNew then
     begin
       NowNew := false;
-      S := 'Position ' + Dec2(NowO) + '/' + Dec2(SongLen);
-      PitTrack;
-      S := S + '  Pattern ' + Dec2(Order[NowO]);
-      PitTrack;
-      S := S + '  Zeile ' + Dec2(NowR) + '   ';
-      PitTrack;
-      for C := 0 to VisCh - 1 do
+      if CovMode then
       begin
-        S := S + CellText(Order[NowO], NowR, C) + ' ';
+        if (ESec <> LastS) or (NowO <> LastO) then begin ShowState; Flush; end;
+      end
+      else
+      begin
+        ShowState;
+        S := 'Zeile ' + Dec2(NowR) + '   ';
         PitTrack;
+        for C := 0 to VisCh - 1 do
+        begin
+          S := S + CellText(Order[NowO], NowR, C) + ' ';
+          PitTrack;
+        end;
+        Want[4] := S;
+        Flush;
       end;
-      Want[4] := S;
-      Flush;
     end;
     K := GetKey;
+    if K <> 0 then
+    begin
+      case K of
+        KEsc, 81, 113: Fin := true;                       { ESC, Q }
+        32: if Stopped or Paused then
+            begin
+              Stopped := false; PlayResume;
+            end
+            else PlayPause;
+        KRet: begin
+                PlayPause; SeekTo(0, 0);
+                Stopped := false; PlayResume;
+              end;
+        83, 115: begin                                     { S }
+                   PlayPause; SeekTo(0, 0); Stopped := true;
+                 end;
+        KLeft:  begin
+                  if not Paused then begin PlayPause; SeekTo(ESec - 10, EMs); PlayResume; end
+                  else SeekTo(ESec - 10, EMs);
+                end;
+        43, 45: if CovMode then                            { + - }
+                  if K = 43 then CovSetRate(CovRate + 500)
+                  else CovSetRate(CovRate - 500);
+        KRight: begin
+                  if not Paused then begin PlayPause; SeekTo(ESec + 10, EMs); PlayResume; end
+                  else SeekTo(ESec + 10, EMs);
+                end;
+      end;
+      if PlEnd and not Paused then
+      else
+      begin
+        ShowState; Want[4] := ''; Flush;
+      end;
+    end;
   end;
   PlayStop;
   ConOut(#26);

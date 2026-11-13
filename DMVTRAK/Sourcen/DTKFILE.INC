@@ -206,6 +206,135 @@ begin
   until Best = 0;
 end;
 
+{ Sampledaten lesen: N Byte nach P^ (P = nil: ueberspringen). Erst den
+  Rest des 128-Byte-Puffers, dann ganze Saetze direkt, dann der Rest. }
+procedure ReadBytes(P: SmpPtr; N: integer; Skip: integer);
+var K, M, R: integer;
+begin
+  K := 0;
+  while ULess(K, N) and (RPos < 128) do
+  begin
+    if P <> nil then P^[K] := RB[RPos];
+    RPos := RPos + 1; K := K + 1;
+  end;
+  M := (N - K) shr 7;
+  if M > 0 then
+  begin
+    if P <> nil then
+    begin
+      {$I-} BlockRead(RF, P^[K], M); {$I+}
+      if IOresult <> 0 then RErr := true;
+      K := K + M * 128;
+    end;
+  end;
+  while ULess(K, N) do
+  begin
+    R := RByte;
+    if P <> nil then P^[K] := R;
+    K := K + 1;
+  end;
+  { ueberspringen ohne Speicher }
+  while Skip > 0 do
+  begin
+    if (RPos >= 128) and (Skip >= 128) then
+    begin
+      {$I-} BlockRead(RF, RB, 1); {$I+}
+      if IOresult <> 0 then RErr := true;
+      Skip := Skip - 128;
+    end
+    else
+    begin
+      R := RByte;
+      Skip := Skip - 1;
+    end;
+  end;
+end;
+
+function Keep2(K: integer): real;   { vorzeichenlos als Real }
+begin
+  if K < 0 then Keep2 := K + 65536.0 else Keep2 := K;
+end;
+
+procedure SkipBytes(R: real);
+begin
+  while R > 30000.0 do
+  begin
+    ReadBytes(nil, 0, 30000);
+    R := R - 30000.0;
+  end;
+  if R >= 1.0 then ReadBytes(nil, 0, Trunc(R));
+end;
+
+{ Nach den Patterns eines MOD: Sampledaten der Instrumente 1..NSmp.
+  Laenge, Schleife aus dem Kopf (HB). Ohne Speicher bleibt das
+  Instrument ohne Daten und klingt dann als erzeugte Welle. }
+procedure LoadSamples(NSmp: integer);
+var I, B, L, Keep, Need: integer;
+    LR, LS, LL: real;
+begin
+  SmpLoaded := 0; SmpTotal := 0;
+  for I := 1 to NSmp do
+  begin
+    B := 20 + (I - 1) * 30;
+    LR := ILen[I];
+    if LR >= 2.0 then
+    begin
+      SmpTotal := SmpTotal + 1;
+      if LR > SmpMax then Keep := Real16(SmpMax) else Keep := Real16(LR);
+      Need := (Keep shr 4) + 2;
+      if (MaxAvail < 0) or (MaxAvail > Need + 64) then
+      begin
+        GetMem(ISmp[I], Keep);
+        ISz[I] := Keep;
+        ISLen[I] := Keep;
+        ReadBytes(ISmp[I], Keep, 0);
+        if LR > SmpMax then SkipBytes(LR - SmpMax);
+        SmpLoaded := SmpLoaded + 1;
+        { Schleife (Woerter im Kopf) }
+        L := HB[B + 28] * 256 + HB[B + 29];
+        if L > 1 then
+        begin
+          LS := (HB[B + 26] * 256.0 + HB[B + 27]) * 2.0;
+          LL := L * 2.0;
+          if LS + 2.0 > Keep2(Keep) then LL := 0
+          else if LS + LL > Keep2(Keep) then LL := Keep2(Keep) - LS;
+          if LL >= 2.0 then
+          begin
+            ILpS[I] := Real16(LS);
+            ILpL[I] := Real16(LL);
+          end;
+        end;
+      end
+      else
+        SkipBytes(LR);
+      if RErr then exit;
+    end;
+  end;
+end;
+
+function Mod15Ok: boolean;      { plausibles 15-Instrumente-MOD? }
+var I, B, L, P: integer;
+begin
+  Mod15Ok := false;
+  L := HB[470];
+  if (L < 1) or (L > 128) then exit;
+  for I := 0 to 127 do if HB[472 + I] > 63 then exit;
+  for I := 1 to 15 do
+  begin
+    B := 20 + (I - 1) * 30;
+    if HB[B + 25] > 64 then exit;          { Lautstaerke }
+    if HB[B + 24] > 15 then exit;          { Feinstimmung }
+  end;
+  P := 0;                                  { Notenperioden im ersten Pattern }
+  for I := 0 to 159 do         { nur was im Kopfpuffer steht }
+  begin
+    B := 600 + I * 4;
+    L := (HB[B] and $0F) shl 8 + HB[B + 1];
+    if (L <> 0) and ((L < 54) or (L > 1814)) then P := P + 1;
+  end;
+  Mod15Ok := P < 8;
+end;
+
 function LoadMod: boolean;      { Kopf steht in HB }
 var Tag: string[4];
     I, J, NSmp, B, Rl: integer;
@@ -223,8 +352,18 @@ begin
     LastErr := 'MOD mit mehr als 8 Kanaelen (' + Tag + ')';
     exit;
   end
-  else NSmp := 15;
+  else
+  begin
+    NSmp := 15;              { altes Soundtracker-MOD ohne Kennung: pruefen }
+    if not Mod15Ok then
+    begin
+      LastErr := 'Unbekanntes Dateiformat (weder MOD noch DTK)';
+      exit;
+    end;
+  end;
   NChan := I;
+  if NSmp = 15 then SrcFmt := 'MOD, 15 Instr.'
+  else SrcFmt := 'MOD ' + Tag;
   Title := '';
   for I := 0 to 19 do Title := Title + Printable(HB[I]);
   Title := TrimR(Title);
@@ -263,6 +402,7 @@ begin
   if ReadPatterns(0) then
   begin
     AutoPrio;
+    if CovWant then LoadSamples(NSmp);
     LoadMod := true;
   end;
 end;
@@ -348,7 +488,13 @@ begin
   for I := 0 to 7 do Sig := Sig + Chr(HB[I]);
   FreeSong;
   HPos := 0;
-  if Sig = 'DMVTRAK1' then Ok := LoadDtk else Ok := LoadMod;
+  SrcFmt := '';
+  if Sig = 'DMVTRAK1' then
+  begin
+    Ok := LoadDtk;
+    SrcFmt := 'DTK';
+  end
+  else Ok := LoadMod;
   Close(RF);
   if not Ok then
   begin
@@ -356,6 +502,7 @@ begin
     exit;
   end;
   if Sig = 'DMVTRAK1' then FileName := N else FileName := ChgExt(N, '.DTK');
+  SrcName := N;
   Modified := false;
   LoadAny := true;
 end;
@@ -417,6 +564,7 @@ begin
     exit;
   end;
   FileName := N;
+  SrcName := N; SrcFmt := 'DTK';
   Modified := false;
   SaveDtk := true;
 end;

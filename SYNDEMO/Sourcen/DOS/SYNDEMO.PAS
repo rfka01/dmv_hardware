@@ -294,7 +294,8 @@ begin
   WriteLn('SYNDEMO - Synthesizer im Tastatur-Controller der DMV');
   if not SynAvail then
   begin
-    WriteLn('Keine Synthesizer-Firmware im 8741.');
+    WriteLn('Im Tastatur-Controller (8741) fehlt die Firmware EXTKB.');
+    WriteLn('Zu finden unter github.com/rfka01/dmv_firmware, Verzeichnis EXTKB.');
     Halt;
   end;
   if not SynBegin then begin WriteLn('Synthesizer startet nicht.'); Halt; end;

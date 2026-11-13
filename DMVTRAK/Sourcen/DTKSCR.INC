@@ -187,9 +187,9 @@ begin
 end;
 
 { ---------------- Tastatur ----------------
-  Sondertasten kommen je nach DOS als #0 + IBM-Code (DOS 3.3),
-  ESC [ A..D oder als ADM-3A-Steuerzeichen (^K ^J ^H ^L).
-  WordStar geht auch (^E ^X ^S ^D, ^R ^C fuer Seiten). }
+  Der Cursorblock der DMV-Tastatur liefert 81h..85h (mit CONTROL
+  91h..95h); dazu ADM-3A-Steuerzeichen (^K ^J ^H ^L) und WordStar
+  (^E ^X ^S ^D, ^R ^C fuer Seiten). }
 
 procedure KbdInit;
 var C: char;
@@ -217,40 +217,8 @@ begin
   if not KeyPressed then exit;
   Read(Kbd, C);
   K := Ord(C);
-  if C = #0 then
-  begin
-    K := 0;
-    if WaitKey(2000) then
-    begin
-      Read(Kbd, C);
-      case C of
-        'H': K := KUp;    'P': K := KDown;
-        'K': K := KLeft;  'M': K := KRight;
-        'I': K := KPgUp;  'Q': K := KPgDn;
-        'G': K := KHome;  'O': K := KEnd;
-        'S': K := KDel;
-      end;
-    end;
-  end
-  else if C = #27 then
-  begin
-    if WaitKey(300) then
-    begin
-      Read(Kbd, C);
-      if C = '[' then
-      begin
-        K := 0;
-        if WaitKey(2000) then
-        begin
-          Read(Kbd, C);
-          case C of
-            'A': K := KUp;   'B': K := KDown;
-            'C': K := KRight; 'D': K := KLeft;
-          end;
-        end;
-      end;
-    end;
-  end
+  if C = #27 then
+    K := KEsc
   else
     case K of
       11, 5:  K := KUp;       { ^K ^E }
@@ -260,6 +228,12 @@ begin
       18:     K := KPgUp;     { ^R }
       3:      K := KPgDn;     { ^C }
       127:    K := KDel;
+      { Cursorblock der DMV-Tastatur (auch mit CONTROL), roh vom 8741 }
+      $81, $91: K := KHome;
+      $82, $92: K := KLeft;
+      $83, $93: K := KDown;
+      $84, $94: K := KUp;
+      $85, $95: K := KRight;
     end;
   GetKey := K;
 end;

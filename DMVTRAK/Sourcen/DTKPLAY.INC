@@ -34,9 +34,21 @@ var
   DurK                   : array[1..31] of integer;
   Dur256                 : integer;
   SynMode                : boolean;    { spielt gerade ueber den Synthesizer }
+  Silent                 : boolean;    { Vorspulen: Ticks rechnen, nichts ausgeben }
+  Paused                 : boolean;
+  ESec, EMs, EFr         : integer;    { Spielzeit: s, ms, 1/100 ms }
+  CkN                    : integer;    { Zeitmarken je Positionswechsel }
+  CkO, CkR, CkSec, CkMs, CkSpd, CkBpm : array[0..399] of integer;
+  PauseUnder             : integer;
   UseSyn                 : boolean;    { Synthesizer benutzen, wenn vorhanden }
 
 procedure SynTick; forward;
+procedure CovTick; forward;
+function CovStart: boolean; forward;
+procedure CovStop; forward;
+function CovFree: integer; forward;
+function CovEmpty: boolean; forward;
+function CovTickMax: integer; forward;
 function SynStart: boolean; forward;
 procedure SynStop; forward;
 procedure SynService; forward;
@@ -109,6 +121,7 @@ begin
   begin
     CPer[C] := PerTab[N];
     CRem[C] := DurTicks(C, 0);
+    CSOff[C] := 0;
     if TrigCnt > 30000 then TrigCnt := 0;
     TrigCnt := TrigCnt + 1;
     CTrig[C] := TrigCnt;
@@ -148,9 +161,10 @@ begin
     else if (N > 0) or (I > 0) then
       Trig(C, N, I);
     case E of
-      9: if (N > 0) and (CRem[C] > 0) then
+      9: if N > 0 then
          begin
-           CRem[C] := DurTicks(C, A);
+           if CRem[C] > 0 then CRem[C] := DurTicks(C, A);
+           CSOff[C] := A shl 8;
          end;
       $B: begin BrkO := A; if BrkR < 0 then BrkR := 0; end;
       $C: CVol[C] := A;
@@ -334,15 +348,38 @@ begin
   end;
 end;
 
+procedure AddMark;               { Zeitmarke am Zeilenanfang, wenn neue Position }
+begin
+  if CkN > 0 then
+    if (CkO[CkN - 1] = PlO) and ((PlR <> 0) or (CkR[CkN - 1] = 0)) then exit;
+  if CkN > 0 then
+    if (CkSec[CkN - 1] = ESec) and (CkMs[CkN - 1] = EMs) then exit;
+  if CkN > 399 then exit;
+  CkO[CkN] := PlO; CkR[CkN] := PlR; CkSec[CkN] := ESec; CkMs[CkN] := EMs;
+  CkSpd[CkN] := Speed; CkBpm[CkN] := BPM;
+  CkN := CkN + 1;
+end;
+
 procedure GenTick;
 var C: integer;
 begin
   if PlEnd then exit;
+  if PlTick = 0 then AddMark;
   if PlTick = 0 then DoRow else DoTickFx(PlTick mod Speed);
   if PlEnd then exit;
   if PlTick = 0 then
-    if SynMode then begin NowO := PlO; NowR := PlR; NowNew := true; end;
-  if SynMode then begin PitTrack; SynTick; end else Emit(SelectTone);
+    if SynMode or CovMode then begin NowO := PlO; NowR := PlR; NowNew := true; end;
+  if Silent then
+  else if CovMode then CovTick
+  else if SynMode then begin PitTrack; SynTick; end else Emit(SelectTone);
+  EFr := EFr + TickLen;            { Spielzeit; TickLen in 1/100 ms }
+  EMs := EMs + EFr div 100;
+  EFr := EFr mod 100;
+  if EMs >= 1000 then
+  begin
+    ESec := ESec + EMs div 1000;
+    EMs := EMs mod 1000;
+  end;
   for C := 0 to NChan - 1 do
     if CRem[C] > 0 then CRem[C] := CRem[C] - 1;
   PlTick := PlTick + 1;
@@ -350,16 +387,26 @@ begin
   if PlTick >= Speed * (1 + PDelay) then NextRow;
 end;
 
-procedure PlayStart(O, R: integer; Once: boolean);
+procedure ResetChans;
 var C: integer;
 begin
-  SndClear;
   for C := 0 to 7 do
   begin
     CPer[C] := 0; CIns[C] := 0; CVol[C] := 0; CRem[C] := 0;
     CTrig[C] := 0; CEff[C] := 0; CPar[C] := 0; CTgt[C] := 0;
     CPSpd[C] := 0; CDlyT[C] := -1; CNPer[C] := -1; CNote[C] := 1;
   end;
+  PDelay := 0;
+  BrkO := -1; BrkR := -1; LoopRow := 0; LoopCnt := 0; LoopJmp := false;
+  Acc := 0; PendU := 0; PendT := 0;
+end;
+
+procedure PlayStart(O, R: integer; Once: boolean);
+begin
+  SndClear;
+  ResetChans;
+  ESec := 0; EMs := 0; EFr := 0; CkN := 0;
+  Silent := false; Paused := false;
   Speed := InitSpd; if Speed < 1 then Speed := 6;
   SetBPM(InitBPM);
   if O >= SongLen then O := 0;
@@ -369,13 +416,18 @@ begin
   Acc := 0; PendU := 0; PendT := 0;
   PlEnd := false; PlOnce := Once;
   SynMode := false;
-  if UseSyn then SynMode := SynStart;
+  if CovWant then
+  begin
+    if not CovMode then if not CovStart then CovWant := false;
+  end
+  else if UseSyn then SynMode := SynStart;
   Playing := true;
   NowO := O; NowR := R; NowNew := true;
 end;
 
 procedure PlayStop;
 begin
+  if CovMode then CovStop;
   if SynMode then SynStop;
   SynMode := false;
   SndClear;
@@ -387,6 +439,19 @@ end;
 procedure PlayService;           { im Hauptschleifen-Takt aufrufen }
 var N: integer;
 begin
+  if Paused then begin Pump; exit; end;
+  if CovMode then
+  begin
+    if not Playing then exit;
+    N := 0;
+    while (not PlEnd) and (CovFree > CovTickMax) and (N < 4) do
+    begin
+      GenTick;
+      N := N + 1;
+    end;
+    if PlEnd and CovEmpty then Playing := false;
+    exit;
+  end;
   Pump;
   if not Playing then exit;
   if SynMode then
@@ -411,6 +476,66 @@ begin
     FlushPend;
     if not SndBusy then Playing := false;
   end;
+end;
+
+function TimeLess(S1, M1, S2, M2: integer): boolean;
+begin
+  TimeLess := (S1 < S2) or ((S1 = S2) and (M1 < M2));
+end;
+
+{ Springen auf Spielzeit TS:TM. Rueckwaerts (oder auf 0) von der letzten
+  Zeitmarke davor neu aufsetzen, dann lautlos bis zum Ziel vorrechnen. }
+procedure SeekTo(TS, TM: integer);
+var K, C: integer;
+begin
+  if TS < 0 then begin TS := 0; TM := 0; end;
+  if TimeLess(TS, TM, ESec, EMs) or PlEnd then
+  begin
+    K := CkN - 1;
+    while (K > 0) and TimeLess(TS, TM, CkSec[K], CkMs[K]) do K := K - 1;
+    ResetChans;
+    if CkN > 0 then
+    begin
+      PlO := CkO[K]; PlR := CkR[K]; ESec := CkSec[K]; EMs := CkMs[K];
+      Speed := CkSpd[K]; SetBPM(CkBpm[K]);
+    end
+    else
+    begin
+      PlO := 0; PlR := 0; ESec := 0; EMs := 0;
+      Speed := InitSpd; if Speed < 1 then Speed := 6;
+      SetBPM(InitBPM);
+    end;
+    EFr := 0; PlTick := 0; PlEnd := false;
+  end;
+  SndClear;
+  Silent := true;
+  K := 0;
+  while (not PlEnd) and TimeLess(ESec, EMs, TS, TM) do
+  begin
+    GenTick;
+    K := K + 1;
+    if (K and 31) = 0 then Pump;
+  end;
+  Silent := false;
+  for C := 0 to 7 do CLast[C] := -1;   { Covox: Kanaele neu anschlagen }
+  NowO := PlO; NowR := PlR; NowNew := true;
+end;
+
+procedure PlayPause;
+begin
+  if Paused or not Playing then exit;
+  Paused := true;
+  if CovMode then PauseUnder := MemW[CovSeg:$1010];
+  if SynMode then SynStop;
+  SndClear;
+end;
+
+procedure PlayResume;
+begin
+  if not Paused then exit;
+  if SynMode then SynMode := SynStart;
+  if CovMode then MemW[CovSeg:$1010] := PauseUnder;
+  Paused := false;
 end;
 
 procedure Service;

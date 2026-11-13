@@ -43,7 +43,7 @@ end;
 
 function Real16(R: real): integer;   { 0..65535 als vorzeichenlose Zahl }
 begin
-  if R >= 32768.0 then Real16 := Trunc(R - 65536.0) else Real16 := Trunc(R);
+  if R >= 32768.0 then Real16 := Trunc(R - 32768.0) or $8000 else Real16 := Trunc(R);
 end;
 
 function PerToNote(P: integer): integer;   { naechstliegende Note }
@@ -89,6 +89,34 @@ begin
   if P >= NPat then NPat := P + 1;
 end;
 
+function ULess(A, B: integer): boolean;   { vorzeichenlos A < B }
+begin
+  ULess := (A xor $8000) < (B xor $8000);
+end;
+
+procedure CovSmpInit;           { beim Programmstart }
+var I: integer;
+begin
+  for I := 1 to NIns do
+  begin
+    ISmp[I] := nil; ISz[I] := 0; ISLen[I] := 0;
+    ILpS[I] := 0; ILpL[I] := 0;
+  end;
+  SmpLoaded := 0; SmpTotal := 0;
+end;
+
+procedure CovSmpFree;           { aus FreeSong }
+var I: integer;
+begin
+  for I := 1 to NIns do
+  begin
+    if ISmp[I] <> nil then FreeMem(ISmp[I], ISz[I]);
+    ISmp[I] := nil; ISz[I] := 0; ISLen[I] := 0;
+    ILpS[I] := 0; ILpL[I] := 0;
+  end;
+  SmpLoaded := 0; SmpTotal := 0;
+end;
+
 procedure FreeSong;
 var I: integer;
 begin
@@ -99,6 +127,7 @@ begin
       Pat[I] := nil;
     end;
   NPat := 0;
+  CovSmpFree;
 end;
 
 procedure InsDefault(I: integer);
@@ -128,6 +157,7 @@ begin
   InitBPM := 125;
   Looping := true;
   FileName := '';
+  SrcName := ''; SrcFmt := '';
   Modified := false;
   if AllocPat(0) then ;
 end;

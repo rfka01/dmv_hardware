@@ -1,6 +1,7 @@
-{ DTKSYN.INC - Ausgabe ueber die Synthesizer-Firmware des 8741
+{ DTKSYN.INC - Ausgabe ueber den Synthesizer im 8741 (Firmware EXTKB)
 
-  Firmware: Keyclick v4 + Synthesizer (Befehl 05h). Erkennung am Status
+  Firmware: EXTKB (github.com/rfka01/dmv_firmware), Befehl 05h; die
+  fruehere Synthesizer-Firmware geht ebenso. Erkennung am Status
   (Port 41h, Bits 7..4): C0h/E0h/D0h = vorhanden, F0h = laeuft gerade.
   Register (Paare Adresse, Wert an Port 40h):
     Stimme 1 Schrittweite 02h/03h, Phase hi 01h

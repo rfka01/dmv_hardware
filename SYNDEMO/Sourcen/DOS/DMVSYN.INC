@@ -1,7 +1,9 @@
 { DMVSYN.INC - Synthesizer und Rennwerk im Tastatur-Controller (8741) der
-  NCR DMV, fuer Turbo Pascal 3. Braucht die Firmware dmv_mb_8741_32678_synth.bin
-  (CRC32 bcb29bec); mit aelterer Synthesizer-Firmware (1bd9e156) geht alles
-  ausser dem Rennwerk, mit der Original-Firmware nichts (SynAvail = false).
+  NCR DMV, fuer Turbo Pascal 3. Braucht die Firmware EXTKB
+  (dmv_mb_8741_32678_extkb.bin, CRC32 5c243b8c, github.com/rfka01/
+  dmv_firmware, Verzeichnis EXTKB); die fruehere Synthesizer-Firmware
+  (bcb29bec) geht ebenso, mit 1bd9e156 alles ausser dem Rennwerk, mit der
+  Original-Firmware nichts (SynAvail = false).
 
   Ablauf:   if SynAvail then
               if SynBegin then

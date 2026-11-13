@@ -1,7 +1,10 @@
 Synthesizer und Rennwerk im Tastatur-Controller der NCR DMV
 ===========================================================
-Firmware dmv_mb_8741_32678_synth.bin, CRC32 bcb29bec, 07.10.2026
-(ersetzt ROM 32678 des 8741 auf der Hauptplatine; enthaelt Keyclick v4)
+Firmware EXTKB: dmv_mb_8741_32678_extkb.bin, CRC32 5c243b8c
+(ersetzt ROM 32678 des 8741 auf der Hauptplatine; enthaelt auch den
+einstellbaren Tastenklick und den Startknack). Die fruehere Synthesizer-
+Firmware dmv_mb_8741_32678_synth.bin (bcb29bec) verhaelt sich hier gleich.
+Zu finden: github.com/rfka01/dmv_firmware, Verzeichnis EXTKB.
 
 Der 8741 erzeugt drei Rechteckstimmen und Rauschen selbst und kann einen
 Divisionstest rechnen ("Rennwerk"). Jedes Programm kann beides ueber die
@@ -12,7 +15,7 @@ Ports 40h (Daten) und 41h (Befehl/Status) benutzen.
 -----------
 Status lesen (IN 41h), obere vier Bits:
 
-   C0h / E0h / D0h   Synthesizer-Firmware, Klick an / aus / LOW
+   C0h / E0h / D0h   EXTKB (oder Synthesizer-Firmware), Klick an / aus / LOW
    40h / 60h / 50h   nur Keyclick v4 (kein Synthesizer)
    00h               Original-Firmware
 
@@ -71,8 +74,9 @@ E0h/D0h.
 DMVSYN.INC enthaelt alles Noetige: SynAvail, SynBegin, SynEnd,
 SynRunning, SynFreq(Stimme, Hz), SynInc(Stimme, Schrittweite),
 SynNoise(an), SynClock, SynWait(Schritte zu 1,28 ms), RaceStart,
-RacePoll, RaceResult. Beispiel: SYNDEMO.PAS. Beides
-und die Firmware: github.com/rfka01/dmv_firmware, Verzeichnis SYNDEMO.
+RacePoll, RaceResult. Beispiel: SYNDEMO.PAS. Beides liegt unter
+github.com/rfka01/dmv_firmware im Verzeichnis SYNDEMO, die Firmware im
+Verzeichnis EXTKB.
 
 
 5. Rennwerk (Divisionstest)
@@ -99,11 +103,9 @@ Abbruch: jeder Befehl an 41h. Datenbytes waehrend des Rennens werden
 
 6. Belegung im ROM
 ------------------
-114h..1FFh Synthesizer und Division; 2BBh..2FFh Keyclick (Befehle 02h..04h
-zusammengefasst), Einsprung 05h, Rennwerk-Ende; 356h..3FCh Tastatur-
-abfrage im Synthesizer und Rennwerk. Die Eintraege 43..50 der Tontabelle
-(unbrauchbare Muell-Toene von Befehl 06h) sind dafuer ueberschrieben;
-Befehl 06h mit Ton 1..42 ist unveraendert.
+Alle gegenueber dem Original geaenderten Bytes stehen disassembliert in
+EXTKB/Sourcen/EXTKB.LST im Repository. Befehl 06h (Musik) spielt die Toene
+1..42 unveraendert.
 
 Code: Claude (Anthropic), Idee und Prompts: rfka01 - Lizenz MIT
 (NCRs Originalcode in der Firmware faellt nicht darunter).
