@@ -1,0 +1,88 @@
+EXTKB Schritt 2: Aenderungen gegenueber der Synth-Firmware (8741, Hauptplatine NCR DMV)
+=======================================================================================
+Synth         dmv_mb_8741_32678_synth.bin       CRC32 bcb29bec
+EXTKB         dmv_mb_8741_32678_extkb.bin       CRC32 5c243b8c
+              SHA1 3bd0e39ce42f3e9df0e075c20159e76aa6cb62b1
+62 Byte gegenueber Synth geaendert, 550 gegenueber dem Original 32678.
+
+1. ROM-Pruefsumme im Selbsttest entfernt
+   02Ch  JMP 0DCh -> JMP 100h: nach dem RAM-Test eine Warteschleife von
+         etwa 23 ms (so lang wie die Pruefsumme dauerte), dann 2DAh
+         (Status C0h, weiter bei 032h). Ohne die Wartezeit fragt der 8741
+         die Tastatur zu frueh ab, die braucht nach dem Einschalten etwa
+         30 ms, und meldet dem Z80 00h (keine Tastatur).
+   Frei geworden: 0DCh-0E8h, 100h-109h, 22Dh-245h. 3FFh bleibt
+   Pruefsummenbyte (Summe weiter 0).
+
+2. Taste beim Einschalten: Knack statt Piep
+   Die Kennung der Tastatur geht wie bisher an den Z80. Danach wartet der
+   8741 etwa 100 ms (12 Abfrage-Zeitueberschreitungen): kommt kein
+   Tastencode, der uebliche Piep; kommt einer (gehaltene Taste, etwa 10 ms
+   nach der Kennung), der LOW-Knack (10Ah), und der Code wird verworfen,
+   ebenso alle Wiederholungen, bis die Tastatur 0,8 s still war.
+   Zustand in RAM 20h: 0 vor der Kennung, 1 Warten, 2 Taste erkannt.
+   R7 zaehlt die Zeitueberschreitungen (vor der Kennung 3Fh wie im ROM).
+   08Eh  JNZ 04Dh  -> JNZ 0DCh   Byte von der Tastatur bei R7 <> 0
+   054h  MOV A,R3  -> JMP 23Eh   Kennung senden, warten statt piepen
+   0B3h  CLR A     -> JMP 22Dh   Zeitueberschreitung bei R7 <> 0
+
+3. Alle geaenderten Bytes (neuer Inhalt, disassembliert)
+
+; ---- 02Ch-02Dh   Synth: 04 DC
+02C: 24 00     JMP 100h
+
+; ---- 054h-055h   Synth: FB 02
+054: 44 3E     JMP 23Eh
+
+; ---- 08Eh-08Fh   Synth: 96 4D
+08E: 96 DC     JNZ 0DCh
+
+; ---- 0B3h-0B4h   Synth: 27 02
+0B3: 44 2D     JMP 22Dh
+
+; ---- 0CFh-0D7h   Synth: BC 6F BD 00 BF 02 95 44 64
+0CF: 07        DEC A
+0D0: BF 60     MOV R7,#60h
+0D2: 96 A6     JNZ 0A6h
+0D4: B0 02     MOV @R0,#02h
+0D6: 24 0A     JMP 10Ah
+
+; ---- 0DCh-0E8h   Synth: 27 AA A8 A9 A3 68 A8 F9 17 EA DF 24 00
+0DC: B8 20     MOV R0,#20h
+0DE: F0        MOV A,@R0
+0DF: 96 CF     JNZ 0CFh
+0E1: B0 01     MOV @R0,#01h
+0E3: FF        MOV A,R7
+0E4: 04 4D     JMP 04Dh
+0E6: 00        NOP
+0E7: 00        NOP
+0E8: 00        NOP
+
+; ---- 100h-109h   Synth: A9 A3 68 A8 F9 17 EA 00 44 2D
+100: BA 12     MOV R2,#12h
+102: B9 00     MOV R1,#00h
+104: 14 E9     CALL 0E9h
+106: EA 02     DJNZ R2,102h
+108: 44 DA     JMP 2DAh
+
+; ---- 22Dh-245h   Synth: A9 A3 68 A8 F9 17 EA 2D A9 E3 68 A8 F9 17 EA 35 F8 96 42 44 DA 23 C0 04 34
+22D: B8 20     MOV R0,#20h
+22F: F0        MOV A,@R0
+230: 96 35     JNZ 235h
+232: 02        OUT DBB,A
+233: 04 56     JMP 056h
+235: EF 3C     DJNZ R7,23Ch
+237: 07        DEC A
+238: 96 3C     JNZ 23Ch
+23A: 04 56     JMP 056h
+23C: 04 B7     JMP 0B7h
+23E: FB        MOV A,R3
+23F: 02        OUT DBB,A
+240: BF 0C     MOV R7,#0Ch
+242: 04 A6     JMP 0A6h
+244: 00        NOP
+245: 00        NOP
+
+; ---- 3FFh-3FFh   Synth: F1
+3FF: B1        Pruefsumme
+

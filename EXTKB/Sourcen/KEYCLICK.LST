@@ -1,5 +1,5 @@
 ; Key click patch for 8741 ROM 32678 - all changed bytes of the patched
-; ROM (output of MKROM.PY), disassembled. 2F2h-2F4h is the STS table.
+; ROM (output of the former MKROM.PY, now step 1 of MKSYNTH.PY), disassembled. 2F2h-2F4h is the STS table.
 
 ; --- 0CDh-0CEh  click after a key code was passed to the host
 0CD: 44 BB     JMP 2BBh
