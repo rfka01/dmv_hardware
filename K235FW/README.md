@@ -13,7 +13,7 @@ entwickelt wurden: die Speicherkarte **K0815** (1 MB SRAM) und das
 
 **Stand: in MAME getestet, ein Test auf echter Hardware steht noch aus.**
 
-**Download:** [`k235_fw20.bin`](k235_fw20.bin) (4 KB, 2732, CRC32 `508eafee`)
+**Download:** [`k235_fw20.bin`](k235_fw20.bin) (4 KB, 2732, CRC32 `66a7f7cf`)
 
 ### Was neu ist
 
@@ -21,9 +21,10 @@ entwickelt wurden: die Speicherkarte **K0815** (1 MB SRAM) und das
   AA55h), etwa doppelt so schnell wie das Original. Er hört beim ersten
   Block auf, der kein RAM ist oder nur die Bank 512 KB tiefer spiegelt.
   Damit stimmt er auf allen Ausbaustufen.
-- **Anzeige** mittig in drei Zeilen: „NCR“, „Decision Mate V – RAM test“
-  und ein Balken mit hochzählender KB-Angabe. Auf Farb- und Monokarte
-  jeweils passend (Kennung im Hauptplatinen-ROM). Fehler zeigen Adresse,
+- **Anzeige** mittig: „NCR“ in weißen Blockbuchstaben in einem roten Feld
+  (Mono: helles Feld, dunkle Buchstaben), darunter „Decision Mate V“,
+  „RAM test (press "M" to go to the monitor)“ und ein Balken mit
+  hochzählender KB-Angabe (Kartentyp aus der Kennung im Hauptplatinen-ROM). Fehler zeigen Adresse,
   Soll- und Ist-Wert und die Bitmaske und warten auf CR oder etwa 10 s.
 - **„M“ während des Tests** springt danach in den Monitor.
 - **Monitor ohne Passwort**, Groß- und Kleinbuchstaben, mit Speichertest
@@ -105,7 +106,7 @@ forum: the **K0815** memory card (1 MB SRAM) and the **K235+** 16-bit module
 
 **Status: tested in MAME, a test on real hardware is still pending.**
 
-**Download:** [`k235_fw20.bin`](k235_fw20.bin) (4 KB, 2732, CRC32 `508eafee`)
+**Download:** [`k235_fw20.bin`](k235_fw20.bin) (4 KB, 2732, CRC32 `66a7f7cf`)
 
 ### What is new
 
@@ -113,9 +114,10 @@ forum: the **K0815** memory card (1 MB SRAM) and the **K235+** 16-bit module
   AA55h), about twice as fast as the original. It stops at the first block
   that is no RAM or only mirrors the bank 512 KB below, so it is right for
   every configuration.
-- **Display** centred in three lines: "NCR", "Decision Mate V – RAM test"
-  and a bar with a KB counter, suited to the colour and the mono board (id
-  in the mainboard ROM). Errors show address, written and read value and
+- **Display** centred: "NCR" in white block letters in a red box (mono:
+  lit box, dark letters), below it "Decision Mate V", "RAM test (press "M"
+  to go to the monitor)" and a bar with a KB counter (board type from the
+  id in the mainboard ROM). Errors show address, written and read value and
   the bit mask, then wait for CR or about 10 s.
 - **"M" during the test** enters the monitor afterwards.
 - **Monitor without password**, upper and lower case, with RAM test `Z`,

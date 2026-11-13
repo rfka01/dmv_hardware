@@ -14,7 +14,8 @@
 ; with K0815 (EPROM window at the top).  0:FE06 = 64 KB banks above
 ; bank 0, a partial last bank included (15 for 1020 KB).  "M" during the
 ; test: finish with presence checks only, then enter the monitor.
-; Screen: three centred lines, colours from the mainboard ROM id at 0FF8h.
+; Screen: NCR logo box, two text lines and the RAM bar, centred; colours
+; from the mainboard ROM id at 0FF8h.
 ;
 ; Monitor: no password, upper/lower case, console = screen/keyboard and,
 ; if present, a K211 (2651 at 70h, IFSEL 1A) at 9600 8N1.  FF00:0632 still
@@ -70,6 +71,7 @@ trapk           equ     V+30h
 conmask         equ     V+31h           ; byte: bit 0 screen, bit 1 K211
 savcur          equ     V+32h           ; word
 bankno          equ     V+35h           ; byte: bar position
+letatt          equ     V+34h           ; byte: attribute of the logo letters
 ATTR            equ     0F90Bh          ; attribute used by CRTOUT
 linebuf         equ     0FC00h          ; 64 bytes
 LINEMAX         equ     60
@@ -221,6 +223,56 @@ s_w     db      ' W=',0
 s_r     db      ' R=',0
 s_bits  db      ' BITS ',0
 s_cr    db      '  (CR)',0
+
+; big NCR as a small picture: a box (BL) of 32 x 7 cells from row 6,
+; column 24, the letters ([letatt]) inside: 5 rows of three 4-bit letters, each
+; bit two cells wide, two cells between the letters and at the sides
+logo:   mov     si,logobits
+        mov     dx,0600h+24
+lg_row: mov     [CURSX],dx
+        mov     ax,0                    ; top and bottom row: box only
+        cmp     dh,6
+        je      lg_go
+        cmp     dh,12
+        je      lg_go
+        cs lodsw
+lg_go:  mov     cx,14                   ; side + 12 bits + side, 2 cells each
+        ror     ax,1                    ; bit 15 = left side (0)
+lg_bit: mov     [ATTR],bl
+        shl     ax,1
+        jnc     lg_off
+        push    ax
+        mov     al,[letatt]
+        mov     [ATTR],al
+        pop     ax
+lg_off: call    lg_two
+        cmp     cl,10                   ; gaps after N and after C
+        je      lg_gap
+        cmp     cl,6
+        jne     lg_nx
+lg_gap: mov     [ATTR],bl
+        call    lg_two
+lg_nx:  loop    lg_bit
+        inc     dh
+        cmp     dh,13
+        jb      lg_row
+        ret
+lg_two: push    ax
+        push    cx
+        mov     al,' '
+        call    CRTOUT
+        mov     al,' '
+        call    CRTOUT
+        pop     cx
+        pop     ax
+        ret
+;                 N    C    R
+logobits:
+        dw      1001_0111_1110_0000b
+        dw      1101_1000_1001_0000b
+        dw      1011_1000_1110_0000b
+        dw      1001_1000_1010_0000b
+        dw      1001_0111_1001_0000b
 
         times   PICTEST-($-$$) db 0FFh
         incbin  "33473.bin", PICTEST, 2ADh-PICTEST
@@ -424,22 +476,24 @@ memtest:
         out     11h,al                  ; mainboard ROM: " C.07.00" or " M.07.00"
         mov     al,[0FF9h]              ; at 0FF8h, first letter = video board
         out     10h,al
-        mov     bx,0FCDDh               ; colour: white on red, white on black
+        mov     bx,0FCDCh               ; colour: red box, white text
+        mov     byte [letatt],00h       ; letters white (00h: black on white)
         cmp     al,'M'
         jne     mt_att
-        mov     bx,0E8E9h               ; mono: inverse, normal
-mt_att: mov     word [CURSX],0A00h+37
-        mov     [ATTR],bl
-        mov     si,s_ncr
-        call    puts
+        mov     bx,0E8E9h               ; mono: inverse box, normal text
+        mov     byte [letatt],0E8h      ; letters dark
+mt_att: call    logo
         mov     [ATTR],bh
-        mov     word [CURSX],0B00h+(80-S_DMV_LEN)/2
+        mov     word [CURSX],0E00h+(80-S_DMV_LEN)/2
         mov     si,s_dmv
         call    puts
-        mov     word [CURSX],0D00h+25   ; row 13, after an empty line
+        mov     word [CURSX],0F00h+(80-S_TST_LEN)/2
+        mov     si,s_tst
+        call    puts
+        mov     word [CURSX],1100h+25   ; row 17, after an empty line
         mov     si,s_ramb
         call    puts
-        mov     word [CURSX],0D00h+46
+        mov     word [CURSX],1100h+46
         mov     al,']'
         call    putc
         call    showkb
@@ -497,7 +551,7 @@ mt_errp:
         pop     cx
 mt_err:
         mov     byte [conmask],3
-        mov     word [CURSX],0E00h
+        mov     word [CURSX],1200h
         call    errshow
 mt_fin: call    showkb
         mov     byte [conmask],2        ; K211: close the line
@@ -527,17 +581,17 @@ mt_fin: call    showkb
 barc:   push    ax
         mov     al,[bankno]
         add     al,30
-        mov     ah,0Dh
+        mov     ah,11h
         mov     [CURSX],ax
         pop     ax
         inc     byte [bankno]
         mov     byte [conmask],3
         jmp     putc
 
-; RAM size on the screen, row 13 column 48
+; RAM size on the screen, row 17 column 48
 showkb: push    dx
         mov     byte [conmask],1
-        mov     word [CURSX],0D00h+48
+        mov     word [CURSX],1100h+48
         mov     ax,[totkb]
         mov     dx,' '
         cmp     ax,1000
@@ -557,9 +611,10 @@ sk_1:   call    putdec
         pop     dx
         ret
 
-s_ncr   db      ' NCR ',0
-s_dmv   db      'Decision Mate V   RAM test (press "M" to go to the monitor)',0
+s_dmv   db      'Decision Mate V',0
 S_DMV_LEN equ   $-s_dmv-1
+s_tst   db      'RAM test (press "M" to go to the monitor)',0
+S_TST_LEN equ   $-s_tst-1
 s_ramb  db      'RAM [',0
 
 ; ---- monitor --------------------------------------------------------------
