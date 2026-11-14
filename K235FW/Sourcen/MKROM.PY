@@ -1,7 +1,7 @@
-# MKROM.PY - firmware 2.0 for the K235 / K235+ 16-bit modules of the
+# MKROM.PY - firmware 2.1 for the K235 / K235+ 16-bit modules of the
 #            NCR Decision Mate V
 #
-#   python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw20.bin
+#   python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw21.bin
 #
 # Input: the original K235 ROM 33473 (4 KB, CRC32 104195dc, as in MAME).
 # Needs nasm in the PATH.  K235FW.ASM takes the parts it keeps from 33473

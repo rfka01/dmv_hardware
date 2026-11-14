@@ -1,4 +1,4 @@
-# K235FW – Firmware 2.0 für K235 und K235+
+# K235FW – Firmware 2.1 für K235 und K235+
 
 *English below.*
 
@@ -13,24 +13,28 @@ entwickelt wurden: die Speicherkarte **K0815** (1 MB SRAM) und das
 
 **Stand: in MAME getestet, ein Test auf echter Hardware steht noch aus.**
 
-**Download:** [`k235_fw20.bin`](k235_fw20.bin) (4 KB, 2732, CRC32 `66a7f7cf`)
+**Download:** [`k235_fw21.bin`](k235_fw21.bin) (4 KB, 2732, CRC32 `37032e30`)
 
 ### Was neu ist
 
 - **Speichertest** in 4-KB-Blöcken mit drei Mustern (Adresse, 55AAh,
   AA55h), etwa doppelt so schnell wie das Original. Er hört beim ersten
   Block auf, der kein RAM ist oder nur die Bank 512 KB tiefer spiegelt.
-  Damit stimmt er auf allen Ausbaustufen.
+  Damit stimmt er auf allen Ausbaustufen. Danach ist der Speicher wie beim
+  Original mit Nullen gefüllt.
 - **Anzeige** mittig: „NCR“ in weißen Blockbuchstaben in einem roten Feld
   (Mono: helles Feld, dunkle Buchstaben), darunter „Decision Mate V“,
-  „RAM test (press "M" to go to the monitor)“ und ein Balken mit
+  „RAM test (press "M" for monitor, "S" to skip test)“ und ein Balken mit
   hochzählender KB-Angabe (Kartentyp aus der Kennung im Hauptplatinen-ROM). Fehler zeigen Adresse,
   Soll- und Ist-Wert und die Bitmaske und warten auf CR oder etwa 10 s.
-- **„M“ während des Tests** springt danach in den Monitor.
+- **„M“ während des Tests** springt danach in den Monitor, **„S“** bricht
+  die Musterprüfung ab. In beiden Fällen wird der Rest des Speichers noch
+  gezählt und gelöscht, `0:FE06` stimmt also.
 - **Monitor ohne Passwort**, Groß- und Kleinbuchstaben, mit Speichertest
   `Z`, Intel-HEX-Laden `L`, Einzelschritt und Haltepunkt.
 - **Terminalbedienung**: Steckt eine K211 auf IFSEL 1A, laufen Test und
-  Monitor zusätzlich seriell mit 9600 8N1.
+  Monitor zusätzlich seriell mit 9600 8N1. Vor dem Booten schaltet die
+  Firmware die K211 wieder ab, wie das Betriebssystem sie erwartet.
 
 | Ausbau | K235 | K235+ |
 |---|---|---|
@@ -80,8 +84,8 @@ Selbsttests. Prompt `*`, alle Zahlen hexadezimal, Adresse `a` =
   (4-KB-Fenster FF000h–FFFFFh).
 - **MAME:** im Branch `homebrew-vzekc` von
   [rfka01/mame](https://github.com/rfka01/mame/tree/homebrew-vzekc) ist sie
-  als BIOS-Option `fw20` enthalten, für die K235+ als Vorgabe:
-  `dmv -slot7a k235p -slot3 k0815` bzw. `dmv -slot7a k235,bios=fw20`.
+  als BIOS-Option `fw21` enthalten, für die K235+ als Vorgabe:
+  `dmv -slot7a k235p -slot3 k0815` bzw. `dmv -slot7a k235,bios=fw21`.
   Für die Terminalbedienung zusätzlich `-slot4 k211 -bitb socket.127.0.0.1:2323`
   und vorher ein Programm, das auf diesem Port lauscht (z. B. `ncat -l -C 127.0.0.1 2323`).
 
@@ -91,9 +95,9 @@ Für K230 und K231 (ROM 32167, ohne 8259) ist die Firmware nicht geeignet.
 
 | | |
 |---|---|
-| `k235_fw20.bin` | die Firmware |
+| `k235_fw21.bin` | die Firmware |
 | `Sourcen/K235FW.ASM` | Quelle (nasm), nur der neue Code |
-| `Sourcen/MKROM.PY` | baut die Firmware aus dem Original-ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw20.bin` |
+| `Sourcen/MKROM.PY` | baut die Firmware aus dem Original-ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw21.bin` |
 
 ## English
 
@@ -106,24 +110,28 @@ forum: the **K0815** memory card (1 MB SRAM) and the **K235+** 16-bit module
 
 **Status: tested in MAME, a test on real hardware is still pending.**
 
-**Download:** [`k235_fw20.bin`](k235_fw20.bin) (4 KB, 2732, CRC32 `66a7f7cf`)
+**Download:** [`k235_fw21.bin`](k235_fw21.bin) (4 KB, 2732, CRC32 `37032e30`)
 
 ### What is new
 
 - **Memory test** in 4 KB blocks with three patterns (address, 55AAh,
   AA55h), about twice as fast as the original. It stops at the first block
   that is no RAM or only mirrors the bank 512 KB below, so it is right for
-  every configuration.
+  every configuration. Afterwards the RAM is zeroed like the original
+  leaves it.
 - **Display** centred: "NCR" in white block letters in a red box (mono:
   lit box, dark letters), below it "Decision Mate V", "RAM test (press "M"
-  to go to the monitor)" and a bar with a KB counter (board type from the
+  for monitor, "S" to skip test)" and a bar with a KB counter (board type from the
   id in the mainboard ROM). Errors show address, written and read value and
   the bit mask, then wait for CR or about 10 s.
-- **"M" during the test** enters the monitor afterwards.
+- **"M" during the test** enters the monitor afterwards, **"S"** skips the
+  pattern test. In both cases the rest of the RAM is still sized and
+  cleared, so `0:FE06` is right.
 - **Monitor without password**, upper and lower case, with RAM test `Z`,
   Intel HEX loader `L`, single step and breakpoint.
 - **Terminal operation**: with a K211 on IFSEL 1A the test and the monitor
-  also run on the serial port at 9600 8N1.
+  also run on the serial port at 9600 8N1. Before booting the firmware
+  switches the K211 off again, as the operating system expects it.
 
 | Configuration | K235 | K235+ |
 |---|---|---|
@@ -171,10 +179,10 @@ Prompt `*`, all numbers hexadecimal, address `a` = `seg:off` or just
 - **K235:** in place of EPROM 33473 (2732).
 - **K235+:** EPROM 2732 in E2, J1 on 2-3, J2 and J3 open, S3 all ON (4 KB
   window FF000h–FFFFFh).
-- **MAME:** included as BIOS option `fw20` in the `homebrew-vzekc` branch of
+- **MAME:** included as BIOS option `fw21` in the `homebrew-vzekc` branch of
   [rfka01/mame](https://github.com/rfka01/mame/tree/homebrew-vzekc), default
   for the K235+: `dmv -slot7a k235p -slot3 k0815` or
-  `dmv -slot7a k235,bios=fw20`. For terminal operation add
+  `dmv -slot7a k235,bios=fw21`. For terminal operation add
   `-slot4 k211 -bitb socket.127.0.0.1:2323` and start a program listening on
   that port first (e.g. `ncat -l -C 127.0.0.1 2323`).
 
@@ -184,6 +192,6 @@ Not suitable for the K230 and K231 (ROM 32167, no 8259).
 
 | | |
 |---|---|
-| `k235_fw20.bin` | the firmware |
+| `k235_fw21.bin` | the firmware |
 | `Sourcen/K235FW.ASM` | source (nasm), new code only |
-| `Sourcen/MKROM.PY` | builds the firmware from the original ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw20.bin` |
+| `Sourcen/MKROM.PY` | builds the firmware from the original ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw21.bin` |

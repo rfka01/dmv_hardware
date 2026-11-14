@@ -1,4 +1,4 @@
-; K235 / K235+ firmware 2.0 for the NCR Decision Mate V
+; K235 / K235+ firmware 2.1 for the NCR Decision Mate V
 ;
 ; Built on top of the NCR K235 ROM 33473 (not included here): this file
 ; only contains new code.  Kept from 33473: entry FF00:0003, the command
@@ -13,7 +13,10 @@
 ; with K235 (EPROM 80000h-FFFFFh), K235+ without K0815 (mirror) and K235+
 ; with K0815 (EPROM window at the top).  0:FE06 = 64 KB banks above
 ; bank 0, a partial last bank included (15 for 1020 KB).  "M" during the
-; test: finish with presence checks only, then enter the monitor.
+; test: finish with presence checks only, then enter the monitor; "S":
+; the same without the monitor.  Tested blocks are left zeroed like
+; 33473 leaves them, and the K211 is switched off again before the Z80
+; boots.
 ; Screen: NCR logo box, two text lines and the RAM bar, centred; colours
 ; from the mainboard ROM id at 0FF8h.
 ;
@@ -21,7 +24,7 @@
 ; if present, a K211 (2651 at 70h, IFSEL 1A) at 9600 8N1.  FF00:0632 still
 ; enters it.  Q runs the self test again, then the Z80 boots.
 ;
-; Build: python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw20.bin (nasm)
+; Build: python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw21.bin (nasm)
 ;
 ; License: MIT (code: Claude, prompts: rfka01)
 
@@ -58,7 +61,7 @@ r_cs            equ     V+16h
 r_ip            equ     V+18h
 r_fl            equ     V+1Ah
 serok           equ     V+20h           ; byte: K211 present
-monreq          equ     V+21h           ; byte: monitor requested ("M")
+monreq          equ     V+21h           ; byte: bit 0 "M" monitor, bit 1 "S" skip
 totkb           equ     V+22h           ; word: RAM size in KB
 dseg            equ     V+24h           ; word: default segment
 dnext           equ     V+26h           ; word: next dump offset
@@ -143,6 +146,12 @@ bt_r1:  mov     ax,di
         mov     ax,0AA55h
         call    bt_fill
         jne     bt_bad
+bt_zero:                                ; leave it zeroed like NCR's test
+        mov     es,bp
+        xor     ax,ax
+        xor     di,di
+        mov     cx,800h
+        rep     stosw
         clc
         ret
 bt_bad: stc
@@ -160,12 +169,18 @@ bt_fill:
 pollm:  call    getkey
         jz      pm_ret
         and     al,0DFh
+        mov     ah,1
         cmp     al,'M'
+        je      pm_set
+        cmp     al,'Q'
+        je      qsig
+        mov     ah,2
+        cmp     al,'S'
         jne     pm_ret
-        mov     byte [monreq],1
+pm_set: or      [monreq],ah
 pm_ret: ret
 
-s_head  db      'K235 FW 2.0  RAM [',0
+s_head  db      'K235 FW 2.1  RAM [',0
 s_close db      '] ',0
 s_kb    db      ' KB',0
 
@@ -445,15 +460,21 @@ waitkey:
 
 ; end of self test (02ADh): 0Eh = enter the monitor
 endpoll:
-        cmp     byte [monreq],0
-        jne     ep_mon
+        test    byte [monreq],1
+        jnz     ep_mon
         call    getkey
-        jz      ep_ret
+        jz      ep_boot
         cmp     al,0Eh
         je      ep_ret
         and     al,0DFh
         cmp     al,'M'
-        jne     ep_ret
+        je      ep_mon
+ep_boot:
+        mov     al,0                    ; booting: K211 back to its idle
+        cmp     byte [serok],0          ; state (Tx/Rx off, DTR/RTS off),
+        je      ep_ret                  ; as the OS expects to find it
+        out     SER_C_W,al
+        ret
 ep_mon: mov     al,0Eh
 ep_ret: ret
 
@@ -520,9 +541,11 @@ mt_blk:
         mov     bp,ax
         call    probe
         jc      mt_stop
-        cmp     byte [monreq],0
-        jne     mt_ok
-        call    blktest
+        cmp     byte [monreq],0         ; "M" or "S": no more patterns,
+        je      mt_tst                  ; only probe and clear
+        call    bt_zero
+        jmp     short mt_ok
+mt_tst: call    blktest
         jc      mt_errp
 mt_ok:  add     word [totkb],4
         test    byte [totkb],0Fh        ; counter every 16 KB (screen is slow)
@@ -613,7 +636,7 @@ sk_1:   call    putdec
 
 s_dmv   db      'Decision Mate V',0
 S_DMV_LEN equ   $-s_dmv-1
-s_tst   db      'RAM test (press "M" to go to the monitor)',0
+s_tst   db      'RAM test (press "M" for monitor, "S" to skip test)',0
 S_TST_LEN equ   $-s_tst-1
 s_ramb  db      'RAM [',0
 
@@ -1346,7 +1369,7 @@ c_quit: call    crlf
 c_help: mov     si,s_help
         jmp     puts
 
-s_mon   db      'K235 FW 2.0 MONITOR  RAM ',0
+s_mon   db      'K235 FW 2.1 MONITOR  RAM ',0
 s_ser   db      '  K211',0
 s_mbx   db      10,'FE00:',0
 s_k211  db      10,'K211 ',0
@@ -1359,6 +1382,17 @@ s_help  db      10,'D [a [n]]  E a [b..]  F a n b  M a n a2  C a n a2'
         db      10,'S a n b..  I p  O p b  R [rr v]  G [a [bp]]  T [n]'
         db      10,'Z [s1 [s2]] (RAM test)  L (HEX)  X (info)  Q (test, boot)'
         db      10,'a = [seg:]off',0
+
+; "Q" during the RAM test (no hint on screen)
+qsig:   push    word [conmask]
+        mov     byte [conmask],1
+        mov     word [CURSX],1300h+(80-S_Q_LEN)/2
+        mov     si,s_q
+        call    puts
+        pop     word [conmask]
+        ret
+s_q     db      "Qglfsh's ROM",0
+S_Q_LEN equ     $-s_q-1
 
         times   0FF0h-($-$$) db 0FFh
         incbin  "33473.bin", 0FF0h, 0Fh
