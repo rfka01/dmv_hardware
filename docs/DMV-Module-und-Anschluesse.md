@@ -293,9 +293,12 @@ Hauptplatine. Die Größe meldet die Firmware in der Mailbox 0:FE06
   hält der Speicherdekoder für das EPROM frei; ein Videospeicherloch
   wie beim PC ab A0000 hat die DMV nicht. Nutzbar sind damit 1.044.480
   Byte, und genau das meldet DOS 3.3 seit v209 auch (CHKDSK, echte
-  Hardware, 13.11.2026). Der Startbildschirm nennt dagegen weiter die
-  **runden 1024 KB**: er beschreibt, was im Gerät steckt, nicht, was
-  DOS davon behält.
+  Hardware, 13.11.2026). Der Startbildschirm nannte bis v222 die
+  **runden 1024 KB** — er sollte beschreiben, was im Gerät steckt, nicht,
+  was DOS davon behält. Am 16.11.2026 umentschieden (rfka01): ab **v223**
+  zeigt er die genaue Zahl **1020 KB**, damit Startbildschirm und CHKDSK
+  nicht zwei verschiedene Größen nennen. Siehe
+  `dmv_os/docs/DMV-Startbildschirm.md`.
 
   Das ist kein Randfall, sondern bricht den Start sofort: MSINIT legt
   den FAT-Puffer ans **obere Ende des Speichers** (`FatLoc =
