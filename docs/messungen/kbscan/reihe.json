@@ -1,0 +1,1998 @@
+[
+ {
+  "code": "F",
+  "name": "",
+  "spalte": 0,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "F",
+  "name": "",
+  "spalte": 0,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "F",
+  "name": "",
+  "spalte": 0,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "V",
+  "name": "",
+  "spalte": 0,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "V",
+  "name": "",
+  "spalte": 0,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "V",
+  "name": "",
+  "spalte": 0,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "7_PAD",
+  "name": "",
+  "spalte": 0,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "7_PAD",
+  "name": "",
+  "spalte": 0,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "7_PAD",
+  "name": "",
+  "spalte": 0,
+  "bit": 8,
+  "art": "C"
+ },
+ {
+  "code": "9_PAD",
+  "name": "",
+  "spalte": 0,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "9_PAD",
+  "name": "",
+  "spalte": 0,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "9_PAD",
+  "name": "",
+  "spalte": 0,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "R",
+  "name": "",
+  "spalte": 0,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "R",
+  "name": "",
+  "spalte": 0,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "R",
+  "name": "",
+  "spalte": 0,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "4",
+  "name": "",
+  "spalte": 0,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "4",
+  "name": "",
+  "spalte": 0,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "4",
+  "name": "",
+  "spalte": 0,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F5",
+  "name": "",
+  "spalte": 0,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F5",
+  "name": "",
+  "spalte": 0,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F5",
+  "name": "",
+  "spalte": 0,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "0_PAD",
+  "name": "",
+  "spalte": 1,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "0_PAD",
+  "name": "",
+  "spalte": 1,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "0_PAD",
+  "name": "",
+  "spalte": 1,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "BACKSLASH",
+  "name": "",
+  "spalte": 1,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "BACKSLASH",
+  "name": "",
+  "spalte": 1,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "BACKSLASH",
+  "name": "",
+  "spalte": 1,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "PGUP",
+  "name": "00",
+  "spalte": 1,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "PGUP",
+  "name": "00",
+  "spalte": 1,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "PGUP",
+  "name": "00",
+  "spalte": 1,
+  "bit": 8,
+  "art": "C"
+ },
+ {
+  "code": "DEL_PAD",
+  "name": "",
+  "spalte": 1,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "DEL_PAD",
+  "name": "",
+  "spalte": 1,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "DEL_PAD",
+  "name": "",
+  "spalte": 1,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "ESC",
+  "name": "",
+  "spalte": 1,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "ESC",
+  "name": "",
+  "spalte": 1,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "ESC",
+  "name": "",
+  "spalte": 1,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F1",
+  "name": "",
+  "spalte": 1,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F1",
+  "name": "",
+  "spalte": 1,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F1",
+  "name": "",
+  "spalte": 1,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "DEL",
+  "name": "CLR",
+  "spalte": 2,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "DEL",
+  "name": "CLR",
+  "spalte": 2,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "DEL",
+  "name": "CLR",
+  "spalte": 2,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "D",
+  "name": "",
+  "spalte": 2,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "D",
+  "name": "",
+  "spalte": 2,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "D",
+  "name": "",
+  "spalte": 2,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "C",
+  "name": "",
+  "spalte": 2,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "C",
+  "name": "",
+  "spalte": 2,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "C",
+  "name": "",
+  "spalte": 2,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "8_PAD",
+  "name": "",
+  "spalte": 2,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "8_PAD",
+  "name": "",
+  "spalte": 2,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "8_PAD",
+  "name": "",
+  "spalte": 2,
+  "bit": 8,
+  "art": "C"
+ },
+ {
+  "code": "SLASH_PAD",
+  "name": "",
+  "spalte": 2,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "SLASH_PAD",
+  "name": "",
+  "spalte": 2,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "SLASH_PAD",
+  "name": "",
+  "spalte": 2,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "E",
+  "name": "",
+  "spalte": 2,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "E",
+  "name": "",
+  "spalte": 2,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "E",
+  "name": "",
+  "spalte": 2,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "3",
+  "name": "",
+  "spalte": 2,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "3",
+  "name": "",
+  "spalte": 2,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "3",
+  "name": "",
+  "spalte": 2,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F4",
+  "name": "",
+  "spalte": 2,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F4",
+  "name": "",
+  "spalte": 2,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F4",
+  "name": "",
+  "spalte": 2,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "SPACE",
+  "name": "",
+  "spalte": 3,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "SPACE",
+  "name": "",
+  "spalte": 3,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "SPACE",
+  "name": "",
+  "spalte": 3,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "G",
+  "name": "",
+  "spalte": 3,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "G",
+  "name": "",
+  "spalte": 3,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "G",
+  "name": "",
+  "spalte": 3,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "B",
+  "name": "",
+  "spalte": 3,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "B",
+  "name": "",
+  "spalte": 3,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "B",
+  "name": "",
+  "spalte": 3,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "4_PAD",
+  "name": "",
+  "spalte": 3,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "4_PAD",
+  "name": "",
+  "spalte": 3,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "4_PAD",
+  "name": "",
+  "spalte": 3,
+  "bit": 8,
+  "art": "C"
+ },
+ {
+  "code": "6_PAD",
+  "name": "",
+  "spalte": 3,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "6_PAD",
+  "name": "",
+  "spalte": 3,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "6_PAD",
+  "name": "",
+  "spalte": 3,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "T",
+  "name": "",
+  "spalte": 3,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "T",
+  "name": "",
+  "spalte": 3,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "T",
+  "name": "",
+  "spalte": 3,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "5",
+  "name": "",
+  "spalte": 3,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "5",
+  "name": "",
+  "spalte": 3,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "5",
+  "name": "",
+  "spalte": 3,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F6",
+  "name": "",
+  "spalte": 3,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F6",
+  "name": "",
+  "spalte": 3,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F6",
+  "name": "",
+  "spalte": 3,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "S",
+  "name": "",
+  "spalte": 4,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "S",
+  "name": "",
+  "spalte": 4,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "S",
+  "name": "",
+  "spalte": 4,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "X",
+  "name": "",
+  "spalte": 4,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "X",
+  "name": "",
+  "spalte": 4,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "X",
+  "name": "",
+  "spalte": 4,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "1_PAD",
+  "name": "",
+  "spalte": 4,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "1_PAD",
+  "name": "",
+  "spalte": 4,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "1_PAD",
+  "name": "",
+  "spalte": 4,
+  "bit": 8,
+  "art": "C"
+ },
+ {
+  "code": "ENTER_PAD",
+  "name": "",
+  "spalte": 4,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "ENTER_PAD",
+  "name": "",
+  "spalte": 4,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "ENTER_PAD",
+  "name": "",
+  "spalte": 4,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "W",
+  "name": "",
+  "spalte": 4,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "W",
+  "name": "",
+  "spalte": 4,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "W",
+  "name": "",
+  "spalte": 4,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "2",
+  "name": "",
+  "spalte": 4,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "2",
+  "name": "",
+  "spalte": 4,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "2",
+  "name": "",
+  "spalte": 4,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F3",
+  "name": "",
+  "spalte": 4,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F3",
+  "name": "",
+  "spalte": 4,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F3",
+  "name": "",
+  "spalte": 4,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "PLUS_PAD",
+  "name": "",
+  "spalte": 5,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "PLUS_PAD",
+  "name": "",
+  "spalte": 5,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "PLUS_PAD",
+  "name": "",
+  "spalte": 5,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "A",
+  "name": "",
+  "spalte": 5,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "A",
+  "name": "",
+  "spalte": 5,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "A",
+  "name": "",
+  "spalte": 5,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "Z",
+  "name": "",
+  "spalte": 5,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "Z",
+  "name": "",
+  "spalte": 5,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "Z",
+  "name": "",
+  "spalte": 5,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "2_PAD",
+  "name": "",
+  "spalte": 5,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "2_PAD",
+  "name": "",
+  "spalte": 5,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "2_PAD",
+  "name": "",
+  "spalte": 5,
+  "bit": 8,
+  "art": "C"
+ },
+ {
+  "code": "3_PAD",
+  "name": "",
+  "spalte": 5,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "3_PAD",
+  "name": "",
+  "spalte": 5,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "3_PAD",
+  "name": "",
+  "spalte": 5,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "Q",
+  "name": "",
+  "spalte": 5,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "Q",
+  "name": "",
+  "spalte": 5,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "Q",
+  "name": "",
+  "spalte": 5,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "1",
+  "name": "",
+  "spalte": 5,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "1",
+  "name": "",
+  "spalte": 5,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "1",
+  "name": "",
+  "spalte": 5,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F2",
+  "name": "",
+  "spalte": 5,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F2",
+  "name": "",
+  "spalte": 5,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F2",
+  "name": "",
+  "spalte": 5,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "BACKSPACE",
+  "name": "Backspace",
+  "spalte": 6,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "BACKSPACE",
+  "name": "Backspace",
+  "spalte": 6,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "BACKSPACE",
+  "name": "Backspace",
+  "spalte": 6,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "L",
+  "name": "",
+  "spalte": 6,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "L",
+  "name": "",
+  "spalte": 6,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "L",
+  "name": "",
+  "spalte": 6,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "STOP",
+  "name": "",
+  "spalte": 6,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "STOP",
+  "name": "",
+  "spalte": 6,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "STOP",
+  "name": "",
+  "spalte": 6,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "O",
+  "name": "",
+  "spalte": 6,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "O",
+  "name": "",
+  "spalte": 6,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "O",
+  "name": "",
+  "spalte": 6,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "9",
+  "name": "",
+  "spalte": 6,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "9",
+  "name": "",
+  "spalte": 6,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "9",
+  "name": "",
+  "spalte": 6,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F10",
+  "name": "",
+  "spalte": 6,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F10",
+  "name": "",
+  "spalte": 6,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F10",
+  "name": "",
+  "spalte": 6,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "?",
+  "name": "F14",
+  "spalte": 7,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "?",
+  "name": "F14",
+  "spalte": 7,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "?",
+  "name": "F14",
+  "spalte": 7,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "BACKSLASH2",
+  "name": "",
+  "spalte": 7,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "BACKSLASH2",
+  "name": "",
+  "spalte": 7,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "BACKSLASH2",
+  "name": "",
+  "spalte": 7,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "ENTER",
+  "name": "Enter",
+  "spalte": 7,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "ENTER",
+  "name": "Enter",
+  "spalte": 7,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "ENTER",
+  "name": "Enter",
+  "spalte": 7,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "CLOSEBRACE",
+  "name": "",
+  "spalte": 7,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "CLOSEBRACE",
+  "name": "",
+  "spalte": 7,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "CLOSEBRACE",
+  "name": "",
+  "spalte": 7,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "EQUALS",
+  "name": "",
+  "spalte": 7,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "EQUALS",
+  "name": "",
+  "spalte": 7,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "EQUALS",
+  "name": "",
+  "spalte": 7,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "?",
+  "name": "F13",
+  "spalte": 7,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "?",
+  "name": "F13",
+  "spalte": 7,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "?",
+  "name": "F13",
+  "spalte": 7,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "MINUS_PAD",
+  "name": "",
+  "spalte": 8,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "MINUS_PAD",
+  "name": "",
+  "spalte": 8,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "MINUS_PAD",
+  "name": "",
+  "spalte": 8,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "H",
+  "name": "",
+  "spalte": 8,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "H",
+  "name": "",
+  "spalte": 8,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "H",
+  "name": "",
+  "spalte": 8,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "N",
+  "name": "",
+  "spalte": 8,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "N",
+  "name": "",
+  "spalte": 8,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "N",
+  "name": "",
+  "spalte": 8,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "5_PAD",
+  "name": "",
+  "spalte": 8,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "5_PAD",
+  "name": "",
+  "spalte": 8,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "5_PAD",
+  "name": "",
+  "spalte": 8,
+  "bit": 8,
+  "art": "C"
+ },
+ {
+  "code": "ASTERISK",
+  "name": "",
+  "spalte": 8,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "ASTERISK",
+  "name": "",
+  "spalte": 8,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "ASTERISK",
+  "name": "",
+  "spalte": 8,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "Y",
+  "name": "",
+  "spalte": 8,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "Y",
+  "name": "",
+  "spalte": 8,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "Y",
+  "name": "",
+  "spalte": 8,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "6",
+  "name": "",
+  "spalte": 8,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "6",
+  "name": "",
+  "spalte": 8,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "6",
+  "name": "",
+  "spalte": 8,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F7",
+  "name": "",
+  "spalte": 8,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F7",
+  "name": "",
+  "spalte": 8,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F7",
+  "name": "",
+  "spalte": 8,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "?",
+  "name": "F16",
+  "spalte": 9,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "?",
+  "name": "F16",
+  "spalte": 9,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "?",
+  "name": "F16",
+  "spalte": 9,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "COLON",
+  "name": "",
+  "spalte": 9,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "COLON",
+  "name": "",
+  "spalte": 9,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "COLON",
+  "name": "",
+  "spalte": 9,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "SLASH",
+  "name": "",
+  "spalte": 9,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "SLASH",
+  "name": "",
+  "spalte": 9,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "SLASH",
+  "name": "",
+  "spalte": 9,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "?",
+  "name": "F18",
+  "spalte": 9,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "?",
+  "name": "F18",
+  "spalte": 9,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "?",
+  "name": "F18",
+  "spalte": 9,
+  "bit": 8,
+  "art": "C"
+ },
+ {
+  "code": "DOWN",
+  "name": "",
+  "spalte": 9,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "DOWN",
+  "name": "",
+  "spalte": 9,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "DOWN",
+  "name": "",
+  "spalte": 9,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "P",
+  "name": "",
+  "spalte": 9,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "P",
+  "name": "",
+  "spalte": 9,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "P",
+  "name": "",
+  "spalte": 9,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "0",
+  "name": "",
+  "spalte": 9,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "0",
+  "name": "",
+  "spalte": 9,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "0",
+  "name": "",
+  "spalte": 9,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F11",
+  "name": "",
+  "spalte": 9,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F11",
+  "name": "",
+  "spalte": 9,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F11",
+  "name": "",
+  "spalte": 9,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "TAB",
+  "name": "",
+  "spalte": 10,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "TAB",
+  "name": "",
+  "spalte": 10,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "TAB",
+  "name": "",
+  "spalte": 10,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "J",
+  "name": "",
+  "spalte": 10,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "J",
+  "name": "",
+  "spalte": 10,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "J",
+  "name": "",
+  "spalte": 10,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "M",
+  "name": "",
+  "spalte": 10,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "M",
+  "name": "",
+  "spalte": 10,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "M",
+  "name": "",
+  "spalte": 10,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "?",
+  "name": "F19",
+  "spalte": 10,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "?",
+  "name": "F19",
+  "spalte": 10,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "?",
+  "name": "F19",
+  "spalte": 10,
+  "bit": 8,
+  "art": "C"
+ },
+ {
+  "code": "UP",
+  "name": "",
+  "spalte": 10,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "UP",
+  "name": "",
+  "spalte": 10,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "UP",
+  "name": "",
+  "spalte": 10,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "U",
+  "name": "",
+  "spalte": 10,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "U",
+  "name": "",
+  "spalte": 10,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "U",
+  "name": "",
+  "spalte": 10,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "7",
+  "name": "",
+  "spalte": 10,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "7",
+  "name": "",
+  "spalte": 10,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "7",
+  "name": "",
+  "spalte": 10,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F8",
+  "name": "",
+  "spalte": 10,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F8",
+  "name": "",
+  "spalte": 10,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F8",
+  "name": "",
+  "spalte": 10,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "?",
+  "name": "F15",
+  "spalte": 11,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "?",
+  "name": "F15",
+  "spalte": 11,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "?",
+  "name": "F15",
+  "spalte": 11,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "QUOTE",
+  "name": "",
+  "spalte": 11,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "QUOTE",
+  "name": "",
+  "spalte": 11,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "QUOTE",
+  "name": "",
+  "spalte": 11,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "?",
+  "name": "F17",
+  "spalte": 11,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "?",
+  "name": "F17",
+  "spalte": 11,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "?",
+  "name": "F17",
+  "spalte": 11,
+  "bit": 8,
+  "art": "C"
+ },
+ {
+  "code": "LEFT",
+  "name": "",
+  "spalte": 11,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "LEFT",
+  "name": "",
+  "spalte": 11,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "LEFT",
+  "name": "",
+  "spalte": 11,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "OPENBRACE",
+  "name": "",
+  "spalte": 11,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "OPENBRACE",
+  "name": "",
+  "spalte": 11,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "OPENBRACE",
+  "name": "",
+  "spalte": 11,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "MINUS",
+  "name": "",
+  "spalte": 11,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "MINUS",
+  "name": "",
+  "spalte": 11,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "MINUS",
+  "name": "",
+  "spalte": 11,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F12",
+  "name": "",
+  "spalte": 11,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F12",
+  "name": "",
+  "spalte": 11,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F12",
+  "name": "",
+  "spalte": 11,
+  "bit": 128,
+  "art": "C"
+ },
+ {
+  "code": "HOME",
+  "name": "",
+  "spalte": 12,
+  "bit": 1,
+  "art": "-"
+ },
+ {
+  "code": "HOME",
+  "name": "",
+  "spalte": 12,
+  "bit": 1,
+  "art": "S"
+ },
+ {
+  "code": "HOME",
+  "name": "",
+  "spalte": 12,
+  "bit": 1,
+  "art": "C"
+ },
+ {
+  "code": "K",
+  "name": "",
+  "spalte": 12,
+  "bit": 2,
+  "art": "-"
+ },
+ {
+  "code": "K",
+  "name": "",
+  "spalte": 12,
+  "bit": 2,
+  "art": "S"
+ },
+ {
+  "code": "K",
+  "name": "",
+  "spalte": 12,
+  "bit": 2,
+  "art": "C"
+ },
+ {
+  "code": "COMMA",
+  "name": "",
+  "spalte": 12,
+  "bit": 4,
+  "art": "-"
+ },
+ {
+  "code": "COMMA",
+  "name": "",
+  "spalte": 12,
+  "bit": 4,
+  "art": "S"
+ },
+ {
+  "code": "COMMA",
+  "name": "",
+  "spalte": 12,
+  "bit": 4,
+  "art": "C"
+ },
+ {
+  "code": "?",
+  "name": "F20",
+  "spalte": 12,
+  "bit": 8,
+  "art": "-"
+ },
+ {
+  "code": "?",
+  "name": "F20",
+  "spalte": 12,
+  "bit": 8,
+  "art": "S"
+ },
+ {
+  "code": "?",
+  "name": "F20",
+  "spalte": 12,
+  "bit": 8,
+  "art": "C",
+  "aus": "Reset der Maschine"
+ },
+ {
+  "code": "RIGHT",
+  "name": "",
+  "spalte": 12,
+  "bit": 16,
+  "art": "-"
+ },
+ {
+  "code": "RIGHT",
+  "name": "",
+  "spalte": 12,
+  "bit": 16,
+  "art": "S"
+ },
+ {
+  "code": "RIGHT",
+  "name": "",
+  "spalte": 12,
+  "bit": 16,
+  "art": "C"
+ },
+ {
+  "code": "I",
+  "name": "",
+  "spalte": 12,
+  "bit": 32,
+  "art": "-"
+ },
+ {
+  "code": "I",
+  "name": "",
+  "spalte": 12,
+  "bit": 32,
+  "art": "S"
+ },
+ {
+  "code": "I",
+  "name": "",
+  "spalte": 12,
+  "bit": 32,
+  "art": "C"
+ },
+ {
+  "code": "8",
+  "name": "",
+  "spalte": 12,
+  "bit": 64,
+  "art": "-"
+ },
+ {
+  "code": "8",
+  "name": "",
+  "spalte": 12,
+  "bit": 64,
+  "art": "S"
+ },
+ {
+  "code": "8",
+  "name": "",
+  "spalte": 12,
+  "bit": 64,
+  "art": "C"
+ },
+ {
+  "code": "F9",
+  "name": "",
+  "spalte": 12,
+  "bit": 128,
+  "art": "-"
+ },
+ {
+  "code": "F9",
+  "name": "",
+  "spalte": 12,
+  "bit": 128,
+  "art": "S"
+ },
+ {
+  "code": "F9",
+  "name": "",
+  "spalte": 12,
+  "bit": 128,
+  "art": "C"
+ }
+]

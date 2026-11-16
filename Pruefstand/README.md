@@ -18,6 +18,8 @@ und jeder ist in dieselben drei Fallen getappt (weiter unten).
 | [`dmvtest.lua`](dmvtest.lua) | Bildschirm als Text, Tasten, Ablaufplan – MAME ohne Fenster bedienen |
 | [`chdio.py`](chdio.py) | Sektoren einer unkomprimierten CHD lesen und schreiben |
 | [`putfile.py`](putfile.py) | eine Datei in die DOS-Partition einer Platte legen, ohne MAME |
+| [`mkchd.py`](mkchd.py) | eine leere, unkomprimierte CHD mit frei gewählter Geometrie bauen (`chdman` gibt es in der Prüfumgebung nicht) |
+| [`mame_holen.sh`](mame_holen.sh) | ein lauffähiges MAME mit dem DMV-Treiber bereitstellen: aus dem Release-Anhang des Forks holen oder bauen |
 
 Gebraucht wird MAME mit dem DMV-Treiber (Zweig `master` von
 [rfka01/mame](https://github.com/rfka01/mame)) und für `putfile.py` das Paket
@@ -107,8 +109,7 @@ DMVOUT=/tmp/lauf.txt ./dmv dmv -slot1 k208 -slot2a k012 -slot7a k235p \
 
 ### Festplatten
 
-Eine leere Platte baut `scripts/mkchd.py` aus
-[dmv_os](https://github.com/rfka01/dmv_os):
+Eine leere Platte baut [`mkchd.py`](mkchd.py):
 
 ```sh
 python3 mkchd.py pruef.chd 615 4 17        # Datei, Zylinder, Köpfe, Sektoren
@@ -129,10 +130,11 @@ python3 putfile.py PLATTE.chd DMVMON.COM
 
 ### Wo die Hardwarefakten stehen
 
-Ports, ROM-Abläufe, Zeitverhalten, Tastaturcodes, GDC: bis auf weiteres in
-[`dmv_os/docs`](https://github.com/rfka01/dmv_os/tree/main/docs), vor allem
-`DMV-Hardware-Boot-und-Bildschirm.md` und `DMV-Zielhardware.md`. Neue Befunde
-gehören dorthin, nicht in eine zweite Sammlung.
+Nebenan in [`../docs/`](../docs/): Anschlüsse, ROM-Abläufe, Zeitverhalten,
+Tastaturcodes, GDC in `DMV-Hardware-Boot-und-Bildschirm.md`, die Module
+und die Porttafel in `DMV-Module-und-Anschluesse.md`, die Erkennung in
+`DMV-Erkennung.md`. Neue Befunde gehören dorthin, nicht in eine zweite
+Sammlung.
 
 ---
 
@@ -159,7 +161,7 @@ the plan never runs; the GDC address space is called `videoram` and is
 addressed per character, not per byte; and Esc does not go through
 `natkeyboard` – use the ioport field `:keyboard:COL.1 / Esc`.
 
-Hardware facts (ports, ROM behaviour, timing) live in
-[`dmv_os/docs`](https://github.com/rfka01/dmv_os/tree/main/docs) for now.
+Hardware facts (ports, ROM behaviour, timing, detection) are next door in
+[`../docs/`](../docs/).
 
 Code: Claude (Anthropic) · Prompts: rfka01 · MIT

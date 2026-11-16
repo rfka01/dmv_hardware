@@ -1,0 +1,61 @@
+# Welche Quelldateien das Verhalten der DMV in MAME bestimmen koennen.
+#
+# Wofuer das gebraucht wird: mame_holen.sh darf einen fertigen Bau aus
+# einem Release-Anhang nehmen, auch wenn der Fork seither weitergegangen
+# ist - aber nur, wenn KEINE dieser Dateien sich geaendert hat. Dann ist
+# bewiesen, dass die DMV sich gleich verhaelt, und der Unterschied liegt
+# woanders (in aller Regel in rfka01s Druckern, die nur deshalb
+# mituebersetzt werden, weil die K210 einen Centronics-Anschluss hat).
+#
+# DIESE LISTE MUSS GEPFLEGT WERDEN. Wer im Treiber ein Geraet in Dienst
+# nimmt, das hier nicht steht, traegt es im selben Commit ein. Sonst
+# bliebe ein veralteter Anhang unbemerkt im Einsatz, und wir messen an
+# einem Emulator, der nicht der ist, fuer den wir ihn halten.
+#
+# Im Zweifel aufnehmen. Ein Pfad zu viel kostet einen Bau, ein Pfad zu
+# wenig kostet eine falsche Messung.
+#
+# Leerzeilen und alles ab # werden ueberlesen. Pfade ohne Entsprechung
+# im Baum stoeren nicht.
+
+# --- die Maschine selbst ---------------------------------------------
+src/mame/ncr
+src/mame/layout/dmv.lay
+src/devices/bus/dmv
+src/lib/formats/dmv_dsk.cpp
+src/lib/formats/dmv_dsk.h
+
+# --- Bausteine auf der Hauptplatine ----------------------------------
+src/devices/cpu/z80
+src/devices/cpu/mcs48               # 8741 Tastatur, auch K806
+src/devices/video/upd7220           # GDC
+src/devices/machine/upd765          # Diskettenkontroller
+src/devices/machine/am9517a         # DMA
+src/devices/machine/pit8253         # Zeitgeber
+src/devices/sound/spkrdev
+src/devices/imagedev/floppy
+src/devices/imagedev/snapquik
+
+# --- Bausteine auf den Steckmodulen ----------------------------------
+src/devices/machine/i8255           # K210, K220
+src/devices/machine/pic8259         # K230
+src/devices/machine/i8087           # K230
+src/devices/machine/scn_pci         # K801
+src/devices/machine/mm58167         # K803 Uhr
+src/devices/machine/timer           # K806
+src/devices/cpu/i86                 # K230 8088/8086
+src/devices/cpu/nec                 # K230 V20
+src/devices/cpu/m68000              # K234 68008
+src/devices/cpu/z180                # K238 (nur im Zweig homebrew)
+src/devices/bus/rs232               # K801
+src/devices/bus/centronics/ctronics.cpp   # der Anschluss selbst,
+src/devices/bus/centronics/ctronics.h     # NICHT die einzelnen Drucker
+
+# --- der Kern des Emulators ------------------------------------------
+# Absichtlich mit drin. Aendert upstream den Kern, kann sich alles
+# aendern, und dann soll neu gebaut werden. rfka01s eigene Geraetearbeit
+# fasst diese Verzeichnisse nicht an - genau die soll die Ausnahme
+# nutzen duerfen.
+src/emu
+src/osd
+src/lib/util
