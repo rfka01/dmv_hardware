@@ -1,4 +1,4 @@
-# K235FW – Firmware 2.2 für K235 und K235+
+# K235FW – Firmware 2.3 für K235 und K235+
 
 *English below.*
 
@@ -13,7 +13,7 @@ entwickelt wurden: die Speicherkarte **K0815** (1 MB SRAM) und das
 
 **Stand: in MAME getestet, ein Test auf echter Hardware steht noch aus.**
 
-**Download:** [`k235_fw22.bin`](k235_fw22.bin) (4 KB, 2732, CRC32 `d8aeeace`)
+**Download:** [`k235_fw23.bin`](k235_fw23.bin) (4 KB, 2732, CRC32 `24a9e8ad`)
 
 ### Was neu ist
 
@@ -60,8 +60,8 @@ für Bildschirm und Tastatur. FF00:0632 führt weiter in den Monitor.
 
 ### Monitor
 
-Einstieg: „M“ während des Speichertests oder Ctrl-N am Ende des
-Selbsttests. Prompt `*`, alle Zahlen hexadezimal, Adresse `a` =
+Einstieg: „M“ während des Speichertests, oder von außen über FF00:0632
+bzw. das Kommando 0 im Postfach (so springt z. B. DMVMON hinein). Prompt `*`, alle Zahlen hexadezimal, Adresse `a` =
 `seg:off` oder nur `off`. Ctrl-C bricht ab, Ctrl-S hält die Ausgabe an.
 
 | Befehl | Wirkung |
@@ -79,8 +79,21 @@ Selbsttests. Prompt `*`, alle Zahlen hexadezimal, Adresse `a` =
 | `Z [s1 [s2]]` | RAM-Test der Segmente s1 bis s2 (zerstört den Inhalt) |
 | `L` | Intel-HEX laden (über die K211) |
 | `X` | Firmware, RAM, Postfach FE00–FE0F, K211, 8087 |
-| `Q` | Selbsttest neu, danach bootet der Z80 |
+| `Q` | nach „M“: Selbsttest neu, danach bootet der Z80; nach einem Einstieg von außen: Kaltstart des Z80 wie nach dem Einschalten (mit einem Selbsttest) |
 | `?` | Kurzhilfe |
+
+Der Monitor legt seinen Speicher in die Interruptvektoren C2h–DFh und
+E1h–FFh (0:0308–03FF ohne INT E0h). NCR MS-DOS 2.11, MS-DOS 3.3 für die DMV,
+CP/M-86 und das p-System stellen dort nur Platzhalter ab. Steigt man aus
+einem laufenden System ein (DMVMON), bleibt dessen Speicher also unberührt
+und lässt sich ansehen; die RAM-Größe in Kopfzeile und `X` misst der
+Monitor dabei neu. Der Speichertest beim Einschalten prüft Bank 0 deshalb
+erst ab 0:0400.
+
+Für `Q` nach einem Einstieg von außen legt der Monitor einen Kaltstart
+(`OUT (11h),A`, `RST 0`) dorthin, wo alle Hauptplatinen-ROMs den Z80 beim
+Start eines 16-Bit-Systems parken (0:F110). Ein Programm kann denselben Weg
+für einen Neustart aus DOS heraus gehen.
 
 ### Einbau
 
@@ -89,8 +102,8 @@ Selbsttests. Prompt `*`, alle Zahlen hexadezimal, Adresse `a` =
   (4-KB-Fenster FF000h–FFFFFh).
 - **MAME:** im Branch `homebrew-vzekc` von
   [rfka01/mame](https://github.com/rfka01/mame/tree/homebrew-vzekc) ist sie
-  als BIOS-Option `fw22` enthalten, für die K235+ als Vorgabe:
-  `dmv -slot7a k235p -slot3 k0815` bzw. `dmv -slot7a k235,bios=fw22`.
+  als BIOS-Option `fw23` enthalten, für die K235+ als Vorgabe:
+  `dmv -slot7a k235p -slot3 k0815` bzw. `dmv -slot7a k235,bios=fw23`.
   Für die Terminalbedienung zusätzlich `-slot4 k211 -bitb socket.127.0.0.1:2323`
   und vorher ein Programm, das auf diesem Port lauscht (z. B. `ncat -l -C 127.0.0.1 2323`).
 
@@ -100,9 +113,9 @@ Für K230 und K231 (ROM 32167, ohne 8259) ist die Firmware nicht geeignet.
 
 | | |
 |---|---|
-| `k235_fw22.bin` | die Firmware |
+| `k235_fw23.bin` | die Firmware |
 | `Sourcen/K235FW.ASM` | Quelle (nasm), nur der neue Code |
-| `Sourcen/MKROM.PY` | baut die Firmware aus dem Original-ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw22.bin` |
+| `Sourcen/MKROM.PY` | baut die Firmware aus dem Original-ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw23.bin` |
 
 ## English
 
@@ -115,7 +128,7 @@ forum: the **K0815** memory card (1 MB SRAM) and the **K235+** 16-bit module
 
 **Status: tested in MAME, a test on real hardware is still pending.**
 
-**Download:** [`k235_fw22.bin`](k235_fw22.bin) (4 KB, 2732, CRC32 `d8aeeace`)
+**Download:** [`k235_fw23.bin`](k235_fw23.bin) (4 KB, 2732, CRC32 `24a9e8ad`)
 
 ### What is new
 
@@ -162,8 +175,8 @@ and keyboard drivers. FF00:0632 still enters the monitor.
 
 ### Monitor
 
-Entry: "M" during the memory test or Ctrl-N at the end of the self test.
-Prompt `*`, all numbers hexadecimal, address `a` = `seg:off` or just
+Entry: "M" during the memory test, or from outside via FF00:0632 or
+command 0 in the mailbox (that is how DMVMON gets in). Prompt `*`, all numbers hexadecimal, address `a` = `seg:off` or just
 `off`. Ctrl-C aborts, Ctrl-S pauses the output.
 
 | Command | Action |
@@ -181,18 +194,31 @@ Prompt `*`, all numbers hexadecimal, address `a` = `seg:off` or just
 | `Z [s1 [s2]]` | RAM test of segments s1 to s2 (destroys the contents) |
 | `L` | load Intel HEX (via the K211) |
 | `X` | firmware, RAM, mailbox FE00–FE0F, K211, 8087 |
-| `Q` | self test again, then the Z80 boots |
+| `Q` | after "M": self test again, then the Z80 boots; after an entry from outside: cold start of the Z80 as at power-on (with one self test) |
 | `?` | short help |
+
+The monitor keeps its RAM in the interrupt vectors C2h–DFh and E1h–FFh
+(0:0308–03FF without INT E0h). NCR MS-DOS 2.11, MS-DOS 3.3 for the DMV,
+CP/M-86 and the p-System only park dummy vectors there. Entering from a
+running system (DMVMON) therefore leaves its memory untouched for
+inspection; the monitor measures the RAM size for its header line and `X`
+again. For that reason the memory test at power-on checks bank 0 from
+0:0400 on.
+
+For `Q` after an entry from outside the monitor puts a cold start
+(`OUT (11h),A`, `RST 0`) where every mainboard ROM parks the Z80 when it
+starts a 16-bit system (0:F110). A program can use the same way to reboot
+from DOS.
 
 ### Installation
 
 - **K235:** in place of EPROM 33473 (2732).
 - **K235+:** EPROM 2732 in E2, J1 on 2-3, J2 and J3 open, S3 all ON (4 KB
   window FF000h–FFFFFh).
-- **MAME:** included as BIOS option `fw22` in the `homebrew-vzekc` branch of
+- **MAME:** included as BIOS option `fw23` in the `homebrew-vzekc` branch of
   [rfka01/mame](https://github.com/rfka01/mame/tree/homebrew-vzekc), default
   for the K235+: `dmv -slot7a k235p -slot3 k0815` or
-  `dmv -slot7a k235,bios=fw22`. For terminal operation add
+  `dmv -slot7a k235,bios=fw23`. For terminal operation add
   `-slot4 k211 -bitb socket.127.0.0.1:2323` and start a program listening on
   that port first (e.g. `ncat -l -C 127.0.0.1 2323`).
 
@@ -202,6 +228,6 @@ Not suitable for the K230 and K231 (ROM 32167, no 8259).
 
 | | |
 |---|---|
-| `k235_fw22.bin` | the firmware |
+| `k235_fw23.bin` | the firmware |
 | `Sourcen/K235FW.ASM` | source (nasm), new code only |
-| `Sourcen/MKROM.PY` | builds the firmware from the original ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw22.bin` |
+| `Sourcen/MKROM.PY` | builds the firmware from the original ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw23.bin` |

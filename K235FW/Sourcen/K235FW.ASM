@@ -1,9 +1,9 @@
-; K235 / K235+ firmware 2.2 for the NCR Decision Mate V
+; K235 / K235+ firmware 2.3 for the NCR Decision Mate V
 ;
 ; Built on top of the NCR K235 ROM 33473 (not included here): this file
 ; only contains new code.  Kept from 33473: entry FF00:0003, the command
 ; table at 0010h, the return to the Z80 at 0018h, ROM checksum, the 8259
-; test (023Ch-02C1h), keyboard/CRT drivers (02E0h-0531h) and the far
+; test (023Ch-02A6h), keyboard/CRT drivers (02F3h-0531h) and the far
 ; display entry FF00:0000.  Replaced: memory test (005Dh-023Bh) and the
 ; monitor (0532h-0FEFh).
 ;
@@ -23,9 +23,16 @@
 ;
 ; Monitor: no password, upper/lower case, console = screen/keyboard and,
 ; if present, a K211 (2651 at 70h, IFSEL 1A) at 9600 8N1.  FF00:0632 still
-; enters it.  Q runs the self test again, then the Z80 boots.
+; enters it.  Its RAM lives in the interrupt vectors C2h-DFh and E1h-FFh
+; (only dummy vectors under MS-DOS 2.11/3.3, CP/M-86 and the p-System), and
+; it probes the RAM size again on entry, so an entry from a running system
+; (DMVMON) leaves that system's memory alone.  Q after "M" runs the self
+; test again, then the Z80 boots; after an entry from outside Q puts a Z80
+; cold start (OUT (11h),A / RST 0) at 0:F110h, where all mainboard ROMs
+; park the Z80, and the Z80 asks for the self test itself.  No Ctrl-N at
+; the end of the self test any more.
 ;
-; Build: python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw22.bin (nasm)
+; Build: python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw23.bin (nasm)
 ;
 ; License: MIT (code: Claude, prompts: rfka01)
 
@@ -46,7 +53,15 @@ SB16            equ     0FE01h          ; Z80 firmware version
 ST16            equ     0FE05h
 MEM16           equ     0FE06h
 
-V               equ     0FD00h          ; our variables
+; RAM of the firmware: interrupt vectors C2h-DFh and E1h-FFh.  MS-DOS 2.11,
+; MS-DOS 3.3 (DMV), CP/M-86 and the p-System only park dummy vectors there
+; (CP/M-86 uses INT E0h, the p-System a word at 0:0306h).  So the monitor,
+; entered from a running system (DMVMON), leaves that system's memory alone.
+V               equ     0308h           ; our variables, up to 033Eh
+                                        ; 0340h-037Fh line buffer (linebuf)
+PATBUF          equ     0384h           ; search pattern, 16 bytes
+USTACK          equ     03A4h           ; default SP for G and T, 16 bytes
+MSTACK          equ     0400h           ; monitor stack 03A4h-03FFh
 r_ax            equ     V+00h
 r_bx            equ     V+02h
 r_cx            equ     V+04h
@@ -76,9 +91,10 @@ trapk           equ     V+30h
 conmask         equ     V+31h           ; byte: bit 0 screen, bit 1 K211
 savcur          equ     V+32h           ; word
 bankno          equ     V+35h           ; byte: bar position
+frommt          equ     V+36h           ; byte: monitor entered by "M"
 letatt          equ     V+34h           ; byte: attribute of the logo letters
 ATTR            equ     0F90Bh          ; attribute used by CRTOUT
-linebuf         equ     0FC00h          ; 64 bytes
+linebuf         equ     0340h           ; 64 bytes
 LINEMAX         equ     60
 
 SER_D_R         equ     70h
@@ -185,7 +201,7 @@ pollm:  call    getkey
 pm_set: or      [monreq],ah
 pm_ret: ret
 
-s_head  db      'K235 FW 2.2  RAM [',0
+s_head  db      'K235 FW 2.3  RAM [',0
 s_close db      '] ',0
 s_kb    db      ' KB',0
 
@@ -296,13 +312,31 @@ logobits:
 
 s_dmv   db      'Decision Mate V',0
 S_DMV_LEN equ   $-s_dmv-1
+s_ser   db      '  K211',0
         times   PICTEST-($-$$) db 0FFh
-        incbin  "33473.bin", PICTEST, 2ADh-PICTEST
-; 02ADh: end of self test, keyboard check for the monitor
-        call    endpoll
-        incbin  "33473.bin", 2B0h, 2B4h-2B0h
-        jmp     mon_entry
-        incbin  "33473.bin", 2B7h, 532h-2B7h
+        incbin  "33473.bin", PICTEST, 2A7h-PICTEST
+; 02A7h: end of self test.  NCR waited 0.5 s here and asked for Ctrl-N;
+; "M" during the RAM test does that job now.
+        test    byte [monreq],1
+        jnz     mon_m
+        jmp     short ep_boot
+        times   2B7h-($-$$) db 0FFh
+        incbin  "33473.bin", 2B7h, 2C2h-2B7h     ; to SWITCH, error exit 02BAh
+; 02C2h-02F2h: empty in 33473, and NCR's key routine for Ctrl-N (02E9h)
+ep_boot:
+        mov     al,0                    ; booting: K211 back to its idle
+        cmp     byte [serok],0          ; state (Tx/Rx off, DTR/RTS off),
+        je      ep_sw                   ; as the OS expects to find it
+        out     SER_C_W,al
+ep_sw:  jmp     SWITCH
+; "M" pressed during the self test: Q will run the test again itself
+mon_m:  cli
+        cld
+        xor     ax,ax
+        mov     byte [frommt],1
+        jmp     mon_go
+        times   CRTOUT-($-$$) db 0FFh
+        incbin  "33473.bin", CRTOUT, 532h-CRTOUT
 
 ; ---- 0532h: console ------------------------------------------------------
 
@@ -466,27 +500,6 @@ waitkey:
         jz      waitkey
         ret
 
-; end of self test (02ADh): 0Eh = enter the monitor
-endpoll:
-        test    byte [monreq],1
-        jnz     ep_mon
-        call    getkey
-        jz      ep_boot
-        cmp     al,0Eh
-        je      ep_ret
-        and     al,0DFh
-        cmp     al,'M'
-        je      ep_mon
-ep_boot:
-        mov     al,0                    ; booting: K211 back to its idle
-        cmp     byte [serok],0          ; state (Tx/Rx off, DTR/RTS off),
-        je      ep_ret                  ; as the OS expects to find it
-        out     SER_C_W,al
-        ret
-ep_mon: mov     al,0Eh
-ep_ret: ret
-
-
 memtest:
         xor     ax,ax
         mov     ds,ax
@@ -526,8 +539,8 @@ mt_att: call    logo
         mov     al,']'
         call    putc
         call    showkb
-        ; bank 0: only 0000h-1FFFh (rest in use)
-        mov     bp,0000h
+        ; bank 0: only 0400h-1FFFh (vectors hold our variables, rest in use)
+        mov     bp,0040h
         call    blktest
         jc      mt_err
         mov     bp,0100h
@@ -655,35 +668,30 @@ s_tst   db      '[L] limit 1MB card to 512KB - [S] skip RAM test - [M] enter ROM
 S_TST_LEN equ   $-s_tst-1
 
 ; ---- monitor --------------------------------------------------------------
+; The screen is always cleared: after an operating system has run, the
+; GDC may scroll from another start address than CRTOUT assumes, and the
+; monitor's output would end up out of sight.
 mon_entry:
         cli
+        cld                             ; an OS may have left DF set
         xor     ax,ax
         mov     ds,ax
-        mov     es,ax
+        mov     [frommt],al             ; from outside (DMVMON, 0632h)
+mon_go: mov     es,ax
         mov     ss,ax
-        mov     sp,ax
+        mov     sp,MSTACK
         mov     byte [conmask],3
         mov     byte [ATTR],0E8h
         mov     al,0Ch                  ; clear the screen
         call    CRTOUT
-        call    ser_init
         xor     ax,ax
         mov     di,V
-        mov     cx,1Ah/2
-        rep     stosw                   ; registers 0
-        mov     word [r_sp],0F000h
-        mov     word [r_fl],0002h
-        mov     [dseg],ax
-        mov     [dnext],ax
-        mov     [bpact],al
-        mov     [tcount],ax
+        mov     cx,30h/2
+        rep     stosw                   ; registers, flags, dseg ... tcount 0
+        mov     word [r_sp],USTACK
+        call    ser_init
         call    crlf
-        mov     si,s_mon
-        call    puts
-        mov     ax,[totkb]
-        call    putdec
-        mov     si,s_kb
-        call    puts
+        call    showhdr
         cmp     byte [serok],0
         je      mon_loop
         mov     si,s_ser
@@ -693,7 +701,7 @@ mon_loop:
         xor     ax,ax
         mov     ds,ax
         mov     ss,ax
-        mov     sp,0FBFEh
+        mov     sp,MSTACK
         mov     byte [conmask],3
         mov     word [4],trap1          ; INT 1 (again: Z may have tested 0:0)
         mov     [6],cs
@@ -1013,21 +1021,21 @@ c_search:
         call    needaddr
         call    needhex
         push    ax                      ; length (gethex uses CX, DX)
-        mov     bx,linebuf+40h          ; pattern buffer
+        mov     bx,PATBUF               ; pattern buffer
 cs_p:   call    gethex
         jc      cs_go
         mov     [bx],al
         inc     bx
-        cmp     bx,linebuf+50h
+        cmp     bx,PATBUF+10h
         jb      cs_p
 cs_go:  pop     cx
         mov     dx,bx
-        sub     dx,linebuf+40h
+        sub     dx,PATBUF
         jz      err_syn
         jcxz    cs_ret
 cs_1:   push    cx
         push    di
-        mov     si,linebuf+40h
+        mov     si,PATBUF
         mov     cx,dx
 cs_2:   mov     al,[si]
         cmp     al,[es:di]
@@ -1189,7 +1197,7 @@ trapc:  pop     word [r_ax]
         mov     [r_di],di
         mov     [r_es],es
         mov     ss,ax
-        mov     sp,0FBFEh
+        mov     sp,MSTACK
         and     word [r_fl],0FEFFh
         cmp     byte [bpact],0
         je      tc_1
@@ -1284,12 +1292,7 @@ rn_r:   and     al,0Fh
 
 ; X: firmware, RAM, mailbox, K211, 8087
 c_info: call    crlf
-        mov     si,s_mon
-        call    puts
-        mov     ax,[totkb]
-        call    putdec
-        mov     si,s_kb
-        call    puts
+        call    showhdr
         mov     si,s_mbx
         call    puts
         mov     si,0FE00h
@@ -1320,7 +1323,8 @@ yesno:  mov     si,s_no
 yn_1:   jmp     puts
 
 ; Z [from [to]]  RAM test of segments from..to (4 KB blocks, destroys the
-; contents), default 1000h up to the end of RAM; 0:F000 (monitor) is skipped
+; contents), default 1000h up to the end of RAM; 0:0000 (vectors, monitor
+; RAM) is skipped
 c_ztest:
         mov     ax,[totkb]
         mov     cl,6
@@ -1340,8 +1344,8 @@ cz_2:   xor     dx,dx                   ; error count
         call    crlf
 cz_blk: cmp     bp,bx
         jae     cz_end
-        cmp     bp,0F00h
-        je      cz_nx
+        or      bp,bp
+        jz      cz_nx
         test    bp,0F00h
         jnz     cz_t
         mov     al,'.'                  ; one dot per 64 KB
@@ -1370,12 +1374,24 @@ cz_end: call    space
 
 ; Q: clear the screen and run the self test again from the memory test on;
 ; it ends as at power-on (8259 test, then back to the Z80, which boots)
-c_quit: call    crlf
-        cli
+; If an operating system ran, the Z80 sits in RAM at 0:F110h, right behind
+; the OUT D0h of the boot ROM's 16-bit stub, and would run into whatever the
+; OS left there.  So put a cold start there: OUT (11h),A (boot ROM in) and
+; RST 0.  The Z80 then starts as at power-on and asks for the self test
+; again.  Coming from the self test ("M"), the Z80 waits in its ROM
+; instead and never gets here; the bytes do no harm.
+c_quit: cli
         xor     ax,ax
         mov     ds,ax
+        mov     word [0F110h],11D3h
+        mov     byte [0F112h],0C7h
         mov     ss,ax
         mov     sp,ax
+        cmp     byte [frommt],0
+        jne     cq_test
+        jmp     SWITCH                  ; from outside: the Z80 starts cold
+                                        ; and asks for the self test itself
+cq_test:
         mov     al,0Ch
         call    CRTOUT
         jmp     memtest
@@ -1383,8 +1399,27 @@ c_quit: call    crlf
 c_help: mov     si,s_help
         jmp     puts
 
-s_mon   db      'K235 FW 2.2 MONITOR  RAM ',0
-s_ser   db      '  K211',0
+; header line.  The RAM size is probed again bank by bank (the probe puts
+; back what it finds): after an operating system has run, neither our
+; counter nor 0:FE06 can be trusted - MS-DOS 3.3 uses 0:F800-FFFF.
+showhdr:
+        mov     si,s_mon
+        call    puts
+        mov     bp,1000h
+sh_l:   call    probe
+        jc      sh_d
+        add     bp,1000h
+        jnz     sh_l
+sh_d:   mov     ax,bp                   ; first missing bank, 0 = all 16
+        mov     cl,6
+        shr     ax,cl
+        jnz     sh_1
+        mov     ax,1020                 ; K235+: EPROM at FF000h
+sh_1:   mov     [totkb],ax
+        call    putdec
+        mov     si,s_kb
+        jmp     puts
+s_mon   db      'K235 FW 2.3 MONITOR  RAM ',0
 s_mbx   db      10,'FE00:',0
 s_k211  db      10,'K211 ',0
 s_fpu   db      '  8087 ',0
