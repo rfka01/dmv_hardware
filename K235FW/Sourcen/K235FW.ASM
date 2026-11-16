@@ -1,4 +1,4 @@
-; K235 / K235+ firmware 2.3 for the NCR Decision Mate V
+; K235 / K235+ firmware 2.4 for the NCR Decision Mate V
 ;
 ; Built on top of the NCR K235 ROM 33473 (not included here): this file
 ; only contains new code.  Kept from 33473: entry FF00:0003, the command
@@ -30,9 +30,11 @@
 ; test again, then the Z80 boots; after an entry from outside Q puts a Z80
 ; cold start (OUT (11h),A / RST 0) at 0:F110h, where all mainboard ROMs
 ; park the Z80, and the Z80 asks for the self test itself.  No Ctrl-N at
-; the end of the self test any more.
+; the end of the self test any more.  Before the Z80 boots, unit 0 is
+; selected on the WD1001 (OUT C6h,A0h): the Z80 ROM checks READY before it
+; selects a unit, and DOS leaves unit 3 selected.
 ;
-; Build: python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw23.bin (nasm)
+; Build: python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw24.bin (nasm)
 ;
 ; License: MIT (code: Claude, prompts: rfka01)
 
@@ -201,7 +203,7 @@ pollm:  call    getkey
 pm_set: or      [monreq],ah
 pm_ret: ret
 
-s_head  db      'K235 FW 2.3  RAM [',0
+s_head  db      'K235 FW 2.4  RAM [',0
 s_close db      '] ',0
 s_kb    db      ' KB',0
 
@@ -324,6 +326,12 @@ s_ser   db      '  K211',0
         incbin  "33473.bin", 2B7h, 2C2h-2B7h     ; to SWITCH, error exit 02BAh
 ; 02C2h-02F2h: empty in 33473, and NCR's key routine for Ctrl-N (02E9h)
 ep_boot:
+        mov     al,0A0h                 ; WD1001/1002 (K012): select unit 0.
+        out     0C6h,al                 ; The Z80 ROM asks for READY (07FBh)
+                                        ; before it selects a unit itself, and
+                                        ; DOS leaves unit 3 selected ("light
+                                        ; off"); only a power-on reset clears
+                                        ; it.  Every way to a boot passes here.
         mov     al,0                    ; booting: K211 back to its idle
         cmp     byte [serok],0          ; state (Tx/Rx off, DTR/RTS off),
         je      ep_sw                   ; as the OS expects to find it
@@ -1419,7 +1427,7 @@ sh_1:   mov     [totkb],ax
         call    putdec
         mov     si,s_kb
         jmp     puts
-s_mon   db      'K235 FW 2.3 MONITOR  RAM ',0
+s_mon   db      'K235 FW 2.4 MONITOR  RAM ',0
 s_mbx   db      10,'FE00:',0
 s_k211  db      10,'K211 ',0
 s_fpu   db      '  8087 ',0

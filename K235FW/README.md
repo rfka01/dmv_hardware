@@ -1,4 +1,4 @@
-# K235FW – Firmware 2.3 für K235 und K235+
+# K235FW – Firmware 2.4 für K235 und K235+
 
 *English below.*
 
@@ -13,7 +13,7 @@ entwickelt wurden: die Speicherkarte **K0815** (1 MB SRAM) und das
 
 **Stand: in MAME getestet, ein Test auf echter Hardware steht noch aus.**
 
-**Download:** [`k235_fw23.bin`](k235_fw23.bin) (4 KB, 2732, CRC32 `24a9e8ad`)
+**Download:** [`k235_fw24.bin`](k235_fw24.bin) (4 KB, 2732, CRC32 `2e07bc87`)
 
 ### Was neu ist
 
@@ -95,6 +95,13 @@ Für `Q` nach einem Einstieg von außen legt der Monitor einen Kaltstart
 Start eines 16-Bit-Systems parken (0:F110). Ein Programm kann denselben Weg
 für einen Neustart aus DOS heraus gehen.
 
+Am Ende des Selbsttests wählt die Firmware am Festplattencontroller
+(K012, WD1001) Einheit 0 an. Das Z80-ROM fragt vor dem Start von Platte
+„bereit“ ab, bevor es selbst eine Einheit wählt, und DOS hinterlässt
+Einheit 3 angewählt. Ohne diesen Schritt endete ein Neustart aus dem
+Monitor bei „WAITING FOR FIX-DISK“; nur das Einschalten setzt den
+Controller zurück.
+
 ### Einbau
 
 - **K235:** an Stelle des EPROMs 33473 (2732).
@@ -102,8 +109,8 @@ für einen Neustart aus DOS heraus gehen.
   (4-KB-Fenster FF000h–FFFFFh).
 - **MAME:** im Branch `homebrew-vzekc` von
   [rfka01/mame](https://github.com/rfka01/mame/tree/homebrew-vzekc) ist sie
-  als BIOS-Option `fw23` enthalten, für die K235+ als Vorgabe:
-  `dmv -slot7a k235p -slot3 k0815` bzw. `dmv -slot7a k235,bios=fw23`.
+  als BIOS-Option `fw24` enthalten, für die K235+ als Vorgabe:
+  `dmv -slot7a k235p -slot3 k0815` bzw. `dmv -slot7a k235,bios=fw24`.
   Für die Terminalbedienung zusätzlich `-slot4 k211 -bitb socket.127.0.0.1:2323`
   und vorher ein Programm, das auf diesem Port lauscht (z. B. `ncat -l -C 127.0.0.1 2323`).
 
@@ -113,9 +120,9 @@ Für K230 und K231 (ROM 32167, ohne 8259) ist die Firmware nicht geeignet.
 
 | | |
 |---|---|
-| `k235_fw23.bin` | die Firmware |
+| `k235_fw24.bin` | die Firmware |
 | `Sourcen/K235FW.ASM` | Quelle (nasm), nur der neue Code |
-| `Sourcen/MKROM.PY` | baut die Firmware aus dem Original-ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw23.bin` |
+| `Sourcen/MKROM.PY` | baut die Firmware aus dem Original-ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw24.bin` |
 
 ## English
 
@@ -128,7 +135,7 @@ forum: the **K0815** memory card (1 MB SRAM) and the **K235+** 16-bit module
 
 **Status: tested in MAME, a test on real hardware is still pending.**
 
-**Download:** [`k235_fw23.bin`](k235_fw23.bin) (4 KB, 2732, CRC32 `24a9e8ad`)
+**Download:** [`k235_fw24.bin`](k235_fw24.bin) (4 KB, 2732, CRC32 `2e07bc87`)
 
 ### What is new
 
@@ -210,15 +217,21 @@ For `Q` after an entry from outside the monitor puts a cold start
 starts a 16-bit system (0:F110). A program can use the same way to reboot
 from DOS.
 
+At the end of the self test the firmware selects unit 0 on the hard disk
+controller (K012, WD1001). The Z80 ROM asks for READY before it selects a
+unit itself when booting from disk, and DOS leaves unit 3 selected.
+Without this step a reboot from the monitor ended at "WAITING FOR
+FIX-DISK"; only power-on resets the controller.
+
 ### Installation
 
 - **K235:** in place of EPROM 33473 (2732).
 - **K235+:** EPROM 2732 in E2, J1 on 2-3, J2 and J3 open, S3 all ON (4 KB
   window FF000h–FFFFFh).
-- **MAME:** included as BIOS option `fw23` in the `homebrew-vzekc` branch of
+- **MAME:** included as BIOS option `fw24` in the `homebrew-vzekc` branch of
   [rfka01/mame](https://github.com/rfka01/mame/tree/homebrew-vzekc), default
   for the K235+: `dmv -slot7a k235p -slot3 k0815` or
-  `dmv -slot7a k235,bios=fw23`. For terminal operation add
+  `dmv -slot7a k235,bios=fw24`. For terminal operation add
   `-slot4 k211 -bitb socket.127.0.0.1:2323` and start a program listening on
   that port first (e.g. `ncat -l -C 127.0.0.1 2323`).
 
@@ -228,6 +241,6 @@ Not suitable for the K230 and K231 (ROM 32167, no 8259).
 
 | | |
 |---|---|
-| `k235_fw23.bin` | the firmware |
+| `k235_fw24.bin` | the firmware |
 | `Sourcen/K235FW.ASM` | source (nasm), new code only |
-| `Sourcen/MKROM.PY` | builds the firmware from the original ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw23.bin` |
+| `Sourcen/MKROM.PY` | builds the firmware from the original ROM 33473: `python MKROM.PY dmv_int_8088_pic_33473.bin k235_fw24.bin` |
