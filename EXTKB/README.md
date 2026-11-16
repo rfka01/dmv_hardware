@@ -8,7 +8,7 @@ EXTKB ersetzt die Firmware des Tastaturcontrollers **auf dem Motherboard** der N
 
 - **Klick einstellbar:** Den Tastaturton kann man abschalten oder auf einen leisen Knack stellen (`ON`, `OFF`, `LOW`). Das Utility dazu liegt in [`../Keyclick`](../Keyclick).
 - **Knack statt Piep beim Einschalten:** Wer beim Einschalten eine Taste gedrückt hält, hört statt des lauten Pieps vor dem Speichertest nur den leisen Knack. Ohne gedrückte Taste piept die DMV wie gewohnt.
-- **Synthesizer:** Der 8741 erzeugt drei Rechteckstimmen und einen Rauschgenerator, frei in der Frequenz. Der Rechner stellt nur die Register. Demo und Programmierschnittstelle in [`../SYNDEMO`](../SYNDEMO), MOD-Player und Tracker in [`../DMVTRAK`](../DMVTRAK).
+- **Synthesizer:** Der 8741 erzeugt drei Rechteckstimmen und einen Rauschgenerator, frei in der Frequenz. Der Rechner stellt nur die Register. Demo und Programmierschnittstelle in [SYNDEMO](https://github.com/rfka01/dmv_soft/tree/main/SYNDEMO), MOD-Player und Tracker in [DMVTRAK](https://github.com/rfka01/dmv_soft/tree/main/DMVTRAK).
 - **Rennwerk:** ein eingebauter Divisionstest des 8741 für Geschwindigkeitsvergleiche.
 - **Keine ROM-Prüfsumme mehr im Selbsttest:** Sie hätte den Platz für den Startknack gekostet. Das Prüfsummenbyte ist weiter gesetzt, die Summe aller Bytes bleibt 0.
 
@@ -59,7 +59,7 @@ Bit 7 = Synthesizer, Bit 6 = Klicksteuerung, Bit 5 = aus, Bit 4 = LOW. Läuft de
 
 **Wichtig:** Die Original-Firmware bleibt bei den Befehlen `02h` bis `05h` in ihrem Befehlsverteiler hängen und fragt die Tastatur nicht mehr ab. Programme prüfen deshalb zuerst Bit 6 (Klick) bzw. Bit 7 (Synthesizer).
 
-Register des Synthesizers, Uhr und Rennwerk sind in [`../SYNDEMO/Sourcen/DOS/SYNTH.TXT`](../SYNDEMO/Sourcen/DOS/SYNTH.TXT) beschrieben.
+Register des Synthesizers, Uhr und Rennwerk sind in [`SYNTH.TXT`](https://github.com/rfka01/dmv_soft/blob/main/SYNDEMO/Sourcen/DOS/SYNTH.TXT) beschrieben.
 
 ### Taste beim Einschalten
 
@@ -85,7 +85,7 @@ EXTKB replaces the firmware of the keyboard controller **on the motherboard** of
 
 - **Adjustable click:** the key click can be switched off or set to a faint tick (`ON`, `OFF`, `LOW`). The utility for it is in [`../Keyclick`](../Keyclick).
 - **Tick instead of beep at power-on:** hold a key while switching on and you hear only the faint tick instead of the loud beep before the memory test. Without a key held the DMV beeps as usual.
-- **Synthesizer:** the 8741 generates three square-wave voices and a noise generator, free in frequency; the computer only sets registers. Demo and programming interface in [`../SYNDEMO`](../SYNDEMO), MOD player and tracker in [`../DMVTRAK`](../DMVTRAK).
+- **Synthesizer:** the 8741 generates three square-wave voices and a noise generator, free in frequency; the computer only sets registers. Demo and programming interface in [SYNDEMO](https://github.com/rfka01/dmv_soft/tree/main/SYNDEMO), MOD player and tracker in [DMVTRAK](https://github.com/rfka01/dmv_soft/tree/main/DMVTRAK).
 - **Race (Rennwerk):** a built-in division benchmark of the 8741 for speed comparisons.
 - **No ROM checksum in the self test any more:** it would have cost the space for the power-on tick. The checksum byte is still set; the sum of all bytes stays 0.
 
@@ -136,7 +136,7 @@ Bit 7 = synthesizer, bit 6 = click control, bit 5 = off, bit 4 = LOW. While the 
 
 **Important:** with commands `02h` to `05h` the original firmware hangs in its command dispatcher and stops scanning the keyboard. Programs therefore check bit 6 (click) or bit 7 (synthesizer) first.
 
-Synthesizer registers, clock and race are described in [`../SYNDEMO/Sourcen/DOS/SYNTH.TXT`](../SYNDEMO/Sourcen/DOS/SYNTH.TXT) (German).
+Synthesizer registers, clock and race are described in [`SYNTH.TXT`](https://github.com/rfka01/dmv_soft/blob/main/SYNDEMO/Sourcen/DOS/SYNTH.TXT) (German).
 
 ### Key held at power-on
 
