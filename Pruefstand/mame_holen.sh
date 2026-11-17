@@ -27,13 +27,27 @@
 #
 # WELCHER ZWEIG - das ist keine Kleinigkeit:
 #
-#   master     der DMV-Treiber und alles historisch Belegte
-#   homebrew   master PLUS Erfundenes, darunter die K238
-#              (src/devices/bus/dmv/k238.cpp)
+#   master           der DMV-Treiber und alles historisch Belegte
+#   homebrew-vzekc   master PLUS Erfundenes:
+#                      K0815  1 MB SRAM      (bus/dmv/k0815.cpp)
+#                      K235+  eigene Firmware
+#                      K238                  (bus/dmv/k238.cpp)
 #
-# Die K238 gibt es NUR in homebrew. Wer CP/M-8000 prueft, braucht darum
-# MAME_BRANCH=homebrew; mit master laeuft das Modul gar nicht. Der Zweig
-# steht im Anhangnamen, damit nicht beide Baue denselben Namen tragen.
+# Diese drei Module gibt es NUR in homebrew-vzekc. Wer CP/M-8000, die
+# K0815 oder die K235+ prueft, braucht darum MAME_BRANCH=homebrew-vzekc.
+# Mit master laeuft das Modul nicht - und MAME sagt das nicht deutlich:
+# -slot2 k0815 wird mit einer Zeile im Protokoll stillschweigend
+# verworfen, die Maschine laeuft mit falscher Bestueckung weiter, und
+# gemessen wird am Ende etwas anderes als gedacht. Am 17.11.2026 hat das
+# eine Stunde gekostet, weil erst der fertige Bau zeigte, dass das Modul
+# fehlt. Darum prueft dieses Skript am Ende nach (siehe module_pruefen).
+#
+# Der frueher hier genannte Zweig "homebrew" existiert am Fork nicht
+# mehr; MAME_BRANCH=homebrew laeuft darum beim Auschecken auf einen
+# Fehler.
+#
+# Der Zweig steht im Anhangnamen, damit nicht beide Baue denselben Namen
+# tragen.
 #
 # WONACH DER ANHANG BENANNT IST: nach der Baumkennung (dem Hash des
 # Dateibaums), nicht nach dem Commit. Der Unterschied ist praktisch:
@@ -106,6 +120,51 @@ ENDE
 }
 
 # ---------------------------------------------------------------------
+#  Firmware der K235+ unterschieben
+# ---------------------------------------------------------------------
+# Die Vorgabe-Firmware der K235+ heisst k235_fw24.bin und steckt NICHT
+# in dmv.zip - das Archiv enthaelt nur NCRs
+# DMV_int_8088_PIC_33473.bin fuer die alte K235. Fehlt die Datei,
+# startet MAME GAR NICHT ("Required files are missing"), und das sieht
+# nach einem kaputten Bau aus, obwohl nur eine Datei am falschen Ort
+# liegt.
+#
+# Anders als die ROMs ist das kein Fremdgut: die Firmware liegt in
+# diesem Repo, eine Ebene ueber dem Pruefstand. Sie wird deshalb hier
+# in einen eigenen Suchpfad gelegt statt in roms/ - so bleibt dmv.zip
+# unberuehrt, und MAME findet sie mit
+#   -rompath "$MAME_DIR/meineroms;$MAME_DIR/roms"
+firmware_bereitstellen() {
+    _q="$(dirname "$0")/../K235FW/k235_fw24.bin"
+    [ -f "$_q" ] || { sag "Hinweis: $_q fehlt - K235+ startet ohne sie nicht"; return 0; }
+    _z="$MAME_DIR/meineroms/dmv_k235p"
+    mkdir -p "$_z"
+    cp -f "$_q" "$_z/k235_fw24.bin"
+    sag "K235+-Firmware liegt in $_z (mit -rompath \"$MAME_DIR/meineroms;$MAME_DIR/roms\" aufrufen)"
+}
+
+# ---------------------------------------------------------------------
+#  Hat der Bau die erfundenen Module wirklich?
+# ---------------------------------------------------------------------
+# Siehe Kopf: ein Bau aus dem falschen Zweig verwirft -slot2 k0815
+# stillschweigend. Diese Probe kostet eine Sekunde und erspart im
+# Zweifel eine Stunde.
+module_pruefen() {
+    [ -x "$MAME_DIR/$PROG" ] || return 0
+    _soll=""
+    case "$MAME_BRANCH" in
+        homebrew*) _soll="k0815 k235p k238" ;;
+        *)         return 0 ;;
+    esac
+    _slots=$("$MAME_DIR/$PROG" dmv -listslots 2>/dev/null) || return 0
+    for _m in $_soll; do
+        printf '%s' "$_slots" | grep -q "[^a-z0-9]$_m[^a-z0-9]" || {
+            sag "ACHTUNG: $_m fehlt in diesem Bau - ist das wirklich $MAME_BRANCH?"
+        }
+    done
+}
+
+# ---------------------------------------------------------------------
 #  1. Welcher Stand ist gemeint?
 # ---------------------------------------------------------------------
 if [ ! -d "$MAME_DIR/.git" ]; then
@@ -118,12 +177,26 @@ fi
 HIER_ZWEIG=$(git -C "$MAME_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)
 if [ "$HIER_ZWEIG" != "$MAME_BRANCH" ]; then
     sag "ausgecheckt ist '$HIER_ZWEIG', gemeint ist '$MAME_BRANCH'"
+    # Geklont wird flach und nur mit einem Zweig; ein anderer ist also
+    # noch nicht da und muss erst geholt werden.
+    git -C "$MAME_DIR" fetch -q --depth 60 origin "$MAME_BRANCH" 2>/dev/null || true
     git -C "$MAME_DIR" checkout -q "$MAME_BRANCH" 2>/dev/null ||
-    git -C "$MAME_DIR" checkout -q -t "origin/$MAME_BRANCH" 2>/dev/null || {
+    git -C "$MAME_DIR" checkout -q -t "origin/$MAME_BRANCH" 2>/dev/null ||
+    git -C "$MAME_DIR" checkout -q -B "$MAME_BRANCH" FETCH_HEAD 2>/dev/null || {
         echo "mame_holen: Zweig $MAME_BRANCH laesst sich nicht auschecken." >&2
+        echo "   Gibt es ihn am Fork? 'git ls-remote --heads origin' zeigt es." >&2
+        echo "   Den frueheren Zweig 'homebrew' gibt es nicht mehr, er heisst" >&2
+        echo "   jetzt 'homebrew-vzekc'." >&2
         exit 2
     }
 fi
+
+# Einen Zweig ohne Upstream-Verweis haelt der Commit-Hook fuer eine
+# Reihe ungepushter Commits, obwohl alles am Fork liegt. Das passiert
+# bei 'checkout -B ... FETCH_HEAD' und kostet jedes Mal eine Rueckfrage.
+git -C "$MAME_DIR" rev-parse --abbrev-ref '@{upstream}' >/dev/null 2>&1 ||
+    git -C "$MAME_DIR" branch -q --set-upstream-to="origin/$MAME_BRANCH" 2>/dev/null ||
+    true
 
 # Stimmt der Stand mit dem Fork ueberein?
 #
@@ -176,6 +249,7 @@ STAND="$ZWEIG $BAUM"
 sag "Zweig $MAME_BRANCH, Baum $BAUM, gesuchter Anhang $ANHANG"
 
 roms_pruefen "$MAME_DIR/roms" || true   # nur melden, der Bau geht trotzdem
+firmware_bereitstellen
 
 # ---------------------------------------------------------------------
 #  2. und 3.: was schon da ist, und was aus dem Release zu holen waere
@@ -312,6 +386,7 @@ if [ -x "$MAME_DIR/$PROG" ] && [ -f "$MAME_DIR/.dmv_stand" ]; then
     DA_BAUM=${DA_STAND##* }
     if [ "$DA_STAND" = "$STAND" ]; then
         sag "$MAME_DIR/$PROG ist schon da und passt zu $STAND - nichts zu bauen"
+        module_pruefen
         [ "$HOCHLADEN" = 1 ] || exit 0
         SCHON_DA=1
     elif [ "$DA_ZWEIG" = "$ZWEIG" ] && [ -n "$DA_BAUM" ]; then
@@ -319,6 +394,7 @@ if [ -x "$MAME_DIR/$PROG" ] && [ -f "$MAME_DIR/.dmv_stand" ]; then
         if [ -n "$DA_COMMIT" ] && ! beruehrt_die_dmv "$DA_COMMIT"; then
             sag "$MAME_DIR/$PROG ist aus $DA_BAUM - fuer die DMV gleichwertig"
             sag "  (Unterschied zu $BAUM beruehrt keine Datei aus $(basename "$PFADLISTE"))"
+            module_pruefen
             [ "$HOCHLADEN" = 1 ] || exit 0
             SCHON_DA=1
             # Abgelegt wird unter dem Stand, aus dem wirklich gebaut
@@ -331,6 +407,7 @@ fi
 
 if [ "${SCHON_DA:-0}" != 1 ]; then
     if hole_vom_release; then
+        module_pruefen
         exit 0
     fi
     sag "kein passender Anhang - es wird gebaut"
@@ -353,11 +430,45 @@ if ! pkg-config --exists sdl2 2>/dev/null; then
     }
 fi
 
+# Auslagerungsspeicher. Am 17.11.2026 hat der OOM-Killer auf zwei Kernen
+# mit 7 GB den Uebersetzer bei luaengine.cpp erschlagen - diese eine
+# Datei braucht mehrere Gigabyte, und neben einer zweiten schweren reicht
+# es nicht. Der Abbruch sieht nach einem Uebersetzungsfehler aus:
+#
+#   g++: fatal error: Killed signal terminated program cc1plus
+#   make[1]: *** [frontend.make:...: ../../../../linux_gcc/obj/.../luaengine.o] Error 1
+#
+# Er ist aber keiner. Mit Auslagerung laeuft es durch. Ein frischer
+# Behaelter hat keine, und ein Neustart nimmt sie wieder weg.
+if [ "$(awk '/^SwapTotal:/{print $2}' /proc/meminfo 2>/dev/null || echo 0)" -lt 1048576 ]; then
+    if [ ! -f /swapfile ] && fallocate -l 6G /swapfile 2>/dev/null; then
+        chmod 600 /swapfile
+        if mkswap -q /swapfile >/dev/null 2>&1 && swapon /swapfile 2>/dev/null; then
+            sag "6 GB Auslagerungsspeicher angelegt (gegen den OOM-Killer)"
+        else
+            rm -f /swapfile
+            sag "Auslagerung laesst sich nicht einschalten - bei Abbruch mit"
+            sag "  'Killed signal terminated program cc1plus' MAME_JOBS=1 setzen"
+        fi
+    elif [ -f /swapfile ]; then
+        swapon /swapfile 2>/dev/null && sag "vorhandene Auslagerung eingeschaltet" || true
+    fi
+fi
+
 cd "$MAME_DIR"
 sag "make SUBTARGET=$SUBTARGET SOURCES=$SOURCES -j$MAME_JOBS (dauert)"
+# Beim ersten Lauf nicht abbrechen: faellt eine einzelne Datei aus (OOM,
+# siehe oben), holt der zweite Lauf genau sie nach - alles Uebersetzte
+# bleibt ja liegen. Erst wenn danach kein Programm da ist, ist Schluss.
 make SUBTARGET="$SUBTARGET" SOURCES="$SOURCES" NOWERROR=1 REGENIE=1 \
      USE_QTDEBUG=0 \
-     -j"$MAME_JOBS"
+     -j"$MAME_JOBS" || sag "erster Lauf abgebrochen - zweiter Versuch mit -j1"
+
+if [ ! -x "$MAME_DIR/$PROG" ]; then
+    make SUBTARGET="$SUBTARGET" SOURCES="$SOURCES" NOWERROR=1 REGENIE=1 \
+         USE_QTDEBUG=0 \
+         -j1
+fi
 
 [ -x "$MAME_DIR/$PROG" ] || {
     echo "mame_holen: $PROG ist nicht entstanden." >&2
@@ -366,6 +477,7 @@ make SUBTARGET="$SUBTARGET" SOURCES="$SOURCES" NOWERROR=1 REGENIE=1 \
 strip "$MAME_DIR/$PROG" 2>/dev/null || true
 echo "$STAND" > "$MAME_DIR/.dmv_stand"
 sag "gebaut: $MAME_DIR/$PROG ($(wc -c < "$MAME_DIR/$PROG") Byte)"
+module_pruefen
 fi
 
 # ---------------------------------------------------------------------
