@@ -565,8 +565,9 @@ Maschine zu wenig Speicher hat und der Benutzer ENTER drückt.
    ```
 
    **Das Paßwort ist `0815`.** Stimmt es, meldet sich
-   `MONITOR 8088/8087 V1.0I` / `NCR-DECISION MATE V` mit dem Prompt
-   `*`. Stimmt es nicht, passiert nichts Sichtbares.
+   `MONITOR 8088/8087 V1.0I` (auf der K230/K231 `V0.0`, siehe Punkt 4)
+   / `NCR-DECISION MATE V` mit dem Prompt `*`. Stimmt es nicht,
+   passiert nichts Sichtbares.
 3. **`M` und `P` sind keine vollständigen Befehle.** Das hat uns lange
    aufgehalten: jede Form wie `M 0` oder `P 41` endet mit
    `SYNTAX ERROR`. Am 15.11.2026 aus dem ROM 33473 geholt und in MAME
@@ -590,6 +591,36 @@ Maschine zu wenig Speicher hat und der Benutzer ENTER drückt.
    antwortet `0041=0C`. `G` und `S` nehmen nach einem Leerzeichen eine
    Adresse in derselben Schreibweise; `S` setzt dabei `0:FD15` auf
    `F0h`, `G` auf 0.
+
+4. **Die beiden ROMs tragen NICHT denselben Monitor.** Alles oben
+   Genannte ist an der 33473 abgelesen; die 32167 der K230/K231 kann
+   weniger. Nachgesehen in beiden ROM-Abzügen und am 18.11.2026 auf
+   der K230 in MAME nachgestellt (bis dahin stand hier und in
+   `dmv_os` die Annahme, beide seien gleich):
+
+   | | 32167 (K230, K231) | 33473 (K235, K235+) |
+   |---|---|---|
+   | Kopfzeile | `MONITOR 8088/8087 V0.0` | `MONITOR 8088/8087 V1.0I` |
+   | Vergleichskette | `0514h`, fünf Buchstaben | `06B8h`, sechs |
+   | `P` (Anschlüsse) | **gibt es nicht**, `PB 41` → `SYNTAX ERROR` | `PB`/`PW` wie oben |
+   | `MB a` | EIN Byte, `0000:FE06=07H` | 16 Byte mit Textspalte |
+   | `MB a,e` | `SYNTAX ERROR` am Komma | zeigt den Bereich |
+   | `MW a` | endloser Wortabzug, acht je Zeile | 16 Byte wortweise |
+   | `R` | acht Register in einer Zeile | zwei Zeilen |
+
+   Gleich sind `MB a=b`, `MW a=w` (niederwertiges Byte zuerst), `G`,
+   `S`, `E`, der Zwang zu Großbuchstaben und die Forderung nach `B `
+   oder `W ` hinter dem `M`. Ob sich der endlose `MW`-Abzug der 32167
+   mit Ctrl-C anhalten läßt, ist offen — über die Tastaturnachbildung
+   in MAME kam weder ENTER noch Ctrl-C an.
+
+   Die Kopfzeile steht in beiden ROMs im Klartext (`0482h` bzw.
+   `0602h`, abgeschlossen mit `88h`) und ist damit der zuverlässige
+   Weg, die Fassung zur Laufzeit zu bestimmen; welche Befehle sie
+   kennt, verrät sicherer die Vergleichskette: `3C 52 74 .. 3C 4D 74
+   ..`, und dahinter steht bei der 33473 ein `CMP AL,'P'`
+   (`3C 50`), bei der 32167 nicht. `dmv_os/tools/dmvmon` macht
+   genau das.
 
 Die Einsprungadresse des Monitors ist je nach Karte eine andere
 (`04B2h` bei der externen 32167, `0632h` bei der internen PIC 33473) —
