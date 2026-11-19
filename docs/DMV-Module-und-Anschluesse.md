@@ -972,6 +972,22 @@ Befehlsfolge steckt also in der Lücke zwischen zwei Sektoren, der FDC
 verpasst keinen, und eine volle Spur ist in **einer** Umdrehung
 gelesen (9 Sektoren, 173 ms vom ersten bis zum letzten Befehl).
 
+**Aber nur, wenn die Befehlsfolge in die Lücke passt — und die ist
+schmal.** Gemessen am 19.11.2026 auf der K230: ein Treiber, der zwischen
+dem letzten Ergebnisbyte und dem nächsten Lesebefehl **3,01 ms**
+braucht, verpasst den Sektor und wartet eine ganze Umdrehung; der
+Befehlsabstand springt dann von 20,93 ms auf **220,93 ms**, also 200 ms
+mehr. Die nutzbare Lücke zwischen dem Ende eines Datenfeldes und dem
+Beginn der nächsten Sektorkennung liegt bei 360 KB und GPL = 2Ah also
+unter drei Millisekunden.
+
+Der 8088 der K230 und der V20 der K235 liegen dabei dicht beieinander:
+derselbe Treiberweg kostete auf dem V20 wenig genug, um die Lücke zu
+treffen, auf dem 8088 nicht. **Wer am Diskettenweg etwas einbaut, das
+je Sektor läuft, muss es auf der K230 nachmessen** — auf der K235 fällt
+es nicht auf. Ein einzelnes `REP MOVSB` über 512 Byte reicht aus: auf
+dem 8088 sind das rund 1,8 ms.
+
 **Auf beiden Prozessorkarten gleich:** 20,93 ms auf der K235+ (V20) und
 20,93 ms auf der K230 (8088), beide mit 5 MHz. Der langsamere Prozessor
 schafft die Befehlsfolge also auch.
