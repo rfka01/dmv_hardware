@@ -95,6 +95,12 @@ weil alles pollt — die Tastaturabfrage in `basinit.asm`, der FDC in
 | INT 1Ch, INT 1Ah AH=0 als Zeitquelle | nicht vorhanden |
 | interruptgetriebene Treiber, Maus über Interrupt | nicht möglich; die K806 lässt sich stattdessen pollen |
 
+Eine Falle steckt im Diskettenlesen: **das EOT-Byte des Lesebefehls muß
+der letzte Sektor der Spur sein.** Mit EOT = FFh kommt der Befehl auf der
+K230/K231 nie zum Ende, auf der K235 schon (Abschnitt 3, „EOT im
+Lesebefehl"). Ein Lader, der die Karte sonst gar nicht anfaßt, startet
+deshalb trotzdem nur auf der K235.
+
 - **Festgelegt:** Die Kartenart wird beim Start am Baustein erkannt,
   nicht mit einer Wartezeit: nach ICW1/ICW2/ICW4 ist 91h das
   Maskenregister des 8259, rückschreibbar und rücklesbar; zwei Muster
@@ -314,7 +320,25 @@ Hauptplatine. Die Größe meldet die Firmware in der Mailbox 0:FE06
   Count an den uPD765 (MAME `dmac_eop`), zusätzlich setzt ein
   Schreibzugriff auf 12h TC. Ein Lesebefehl mit EOT = R endet damit nach
   dem einen Sektor normal (ST0 = 00h je Laufwerk), nicht mit „End of
-  Cylinder“.
+  Cylinder“. **Das gilt gemessen für die K235 und die K235+; auf der
+  K230/K231 nicht.**
+- **EOT im Lesebefehl muß der letzte Sektor der Spur sein, nicht der
+  angeforderte und nicht FFh (gemessen 19.11.2026, K230 gegen K235+).**
+  Ein READ DATA mit EOT = FFh läuft auf der K235 und der K235+
+  einwandfrei durch — der Terminal Count beendet ihn —, auf der
+  K230/K231 dagegen nicht: der Befehl kommt nie zum Ende, der Lader
+  wiederholt endlos dieselbe Befehlsfolge (mitgeschnitten mit einem
+  Lua-Tap auf Anschluß 51h: die ersten 59 Befehlsbytes sind auf beiden
+  Karten byteweise gleich, danach wiederholt die K230 nur noch). Mit
+  EOT = Sektoren je Spur läuft es auf allen drei Karten. Alle drei
+  Fassungen, die auf der K230 nachweislich starten, machen es so: NCRs
+  `flxpimc.asm` von DOS 2.11 (`MOV AL,SECTRK / MOV COMSTR+7,AL`), unser
+  Bootsektor und `dmvbios.inc`. Der Wert steht im BPB bei Feld 18h, in
+  der Bootsektorabschrift also bei `0:E018`. Nur MSLOAD hatte FFh; damit
+  startete MS-DOS 3.30 ausschließlich auf der K235 und der K235+.
+  Warum die K235 FFh verträgt, ist noch nicht belegt — naheliegend ist,
+  daß der Terminal Count auf der K230/K231 nicht beim 8272 ankommt und
+  der Befehl deshalb nur über EOT endet.
 - **Festgelegt (1.11.2026, berichtigt): je System ein eigener
   Mindestausbau — und er ist nicht derselbe.**
 
