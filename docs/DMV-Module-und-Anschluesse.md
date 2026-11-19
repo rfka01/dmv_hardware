@@ -321,14 +321,21 @@ Hauptplatine. Die Größe meldet die Firmware in der Mailbox 0:FE06
   | | Boden | im Lader durchgesetzt? | gemessen |
   |---|---|---|---|
   | **MS-DOS 3.30** | **128 KB** (eine Bank, K200) | **ja**, MSLOAD bricht ohne Erweiterung ab | 131 072 gesamt, **66 992 frei** mit geladenem DMVKEY; das System belegt rund 59 KB |
-  | **DR DOS 3.41** | **192 KB** | **nein — noch offen** | 196 608 gesamt, 121 120 frei; das System belegt rund 75 KB |
+  | **DR DOS 3.41** | **256 KB** (K202) | **ja**, ab drdos341 v017: Meldung nach dem Startbildschirm, Neustart auf Tastendruck | 196 608 gesamt, 121 120 frei; das System belegt rund 75 KB |
 
-  **Offen für DR DOS:** dort gibt es bisher **keinen** solchen Riegel –
-  `0:FE06` kommt im DR-Baum nur in Prüfskripten vor, nirgends im
-  Ladeweg. Eine DMV ohne Erweiterung bleibt unter DR DOS also wortlos
-  stehen, während MS-DOS eine Meldung zeigt und den Monitor anbietet.
-  Derselbe Zweig gehört dort nachgezogen (Stand 1.11.2026: zurückgestellt,
-  bis MS-DOS fertig ist).
+  **192 KB ist kein Ausbau.** Es gibt auf der DMV 64 KB (nur
+  Hauptplatine), 128 KB (K200), 256 KB (K202), 512 KB (K208) und 1 MB
+  (K0815); 192 KB ist nur der Speicher **auf** der K202. Mit 128 KB
+  bleibt DR DOS in BIOSINIT stehen; der kleinste wirkliche Ausbau, mit
+  dem es läuft, ist darum die K202 (rfka01, 19.11.2026). Woher die
+  196 608 Byte der Messung oben kommen, ist offen.
+
+  **Seit drdos341 v017** prüft das DMV-ROS `0:FE06` nach dem
+  Startbildschirm: unter drei Bänken kommt „DR DOS braucht mindestens
+  256 KB Arbeitsspeicher (Speichermodul K202 oder K208)“, und ein
+  Tastendruck gibt die Maschine an den Z80 zurück wie `REBOOT.COM`
+  (Kaltstart). MS-DOS bietet an dieser Stelle den Monitor an. In MAME
+  getestet (64 KB: Meldung, Neustart, DR startet erneut von A:).
 
   **Empfohlen bleiben 256 KB (K202)** für den vollen Softwaresatz — als
   Empfehlung in der Doku, **nicht** als Riegel im Lader.
