@@ -95,11 +95,14 @@ weil alles pollt — die Tastaturabfrage in `basinit.asm`, der FDC in
 | INT 1Ch, INT 1Ah AH=0 als Zeitquelle | nicht vorhanden |
 | interruptgetriebene Treiber, Maus über Interrupt | nicht möglich; die K806 lässt sich stattdessen pollen |
 
-Eine Falle steckt im Diskettenlesen: **das EOT-Byte des Lesebefehls muß
-der letzte Sektor der Spur sein.** Mit EOT = FFh kommt der Befehl auf der
-K230/K231 nie zum Ende, auf der K235 schon (Abschnitt 3, „EOT im
-Lesebefehl"). Ein Lader, der die Karte sonst gar nicht anfaßt, startet
-deshalb trotzdem nur auf der K235.
+Die Karte ist damit nicht aus dem Spiel: ein Lader, der sie gar nicht
+anfaßt, kann trotzdem nur auf der K235 starten. Der Grund liegt nicht
+im Controller, sondern in den **unteren Seiten** — 0400h bis 05FFh
+gehört der Firmware, und deren Inhalt unterscheidet sich zwischen der
+32167 (K230/K231) und der 33473 (K235/K235+). Verlagerter Ladercode,
+der dort versehentlich seine Merker liest, verhält sich darum je Karte
+anders (Abschnitt 3, „Verlagerter Ladercode"). Genau daran ist MS-DOS
+3.30 auf der K230 bis v226 gescheitert.
 
 - **Festgelegt:** Die Kartenart wird beim Start am Baustein erkannt,
   nicht mit einer Wartezeit: nach ICW1/ICW2/ICW4 ist 91h das
@@ -320,25 +323,48 @@ Hauptplatine. Die Größe meldet die Firmware in der Mailbox 0:FE06
   Count an den uPD765 (MAME `dmac_eop`), zusätzlich setzt ein
   Schreibzugriff auf 12h TC. Ein Lesebefehl mit EOT = R endet damit nach
   dem einen Sektor normal (ST0 = 00h je Laufwerk), nicht mit „End of
-  Cylinder“. **Das gilt gemessen für die K235 und die K235+; auf der
-  K230/K231 nicht.**
-- **EOT im Lesebefehl muß der letzte Sektor der Spur sein, nicht der
-  angeforderte und nicht FFh (gemessen 19.11.2026, K230 gegen K235+).**
-  Ein READ DATA mit EOT = FFh läuft auf der K235 und der K235+
-  einwandfrei durch — der Terminal Count beendet ihn —, auf der
-  K230/K231 dagegen nicht: der Befehl kommt nie zum Ende, der Lader
-  wiederholt endlos dieselbe Befehlsfolge (mitgeschnitten mit einem
-  Lua-Tap auf Anschluß 51h: die ersten 59 Befehlsbytes sind auf beiden
-  Karten byteweise gleich, danach wiederholt die K230 nur noch). Mit
-  EOT = Sektoren je Spur läuft es auf allen drei Karten. Alle drei
-  Fassungen, die auf der K230 nachweislich starten, machen es so: NCRs
-  `flxpimc.asm` von DOS 2.11 (`MOV AL,SECTRK / MOV COMSTR+7,AL`), unser
-  Bootsektor und `dmvbios.inc`. Der Wert steht im BPB bei Feld 18h, in
-  der Bootsektorabschrift also bei `0:E018`. Nur MSLOAD hatte FFh; damit
-  startete MS-DOS 3.30 ausschließlich auf der K235 und der K235+.
-  Warum die K235 FFh verträgt, ist noch nicht belegt — naheliegend ist,
-  daß der Terminal Count auf der K230/K231 nicht beim 8272 ankommt und
-  der Befehl deshalb nur über EOT endet.
+  Cylinder“. **Gemessen am 19.11.2026 gilt das auf allen 8088-Karten
+  gleichermaßen, auch auf der K230/K231:** 80 Lesebefehle mit EOT = FFh
+  sind dort nacheinander normal beendet worden. Eine frühere Fassung
+  dieses Absatzes behauptete das Gegenteil, siehe unten.
+- **EOT im Lesebefehl: der letzte Sektor der Spur ist die Konvention,
+  nicht die Rettung (berichtigt 19.11.2026).** NCRs `flxpimc.asm` von
+  DOS 2.11 (`MOV AL,SECTRK / MOV COMSTR+7,AL`), der Bootsektor und
+  `dmvbios.inc` setzen EOT alle auf die Sektoren je Spur, und das ist
+  auch zu empfehlen: so beendet den Befehl das EOT und nicht erst der
+  Terminal Count. **Notwendig ist es aber nicht** — mit EOT = FFh läuft
+  der Start gemessen auf K230, K235 und K235+ ebenso. Der Wert steht im
+  BPB bei Feld 18h, in der Bootsektorabschrift also bei `0:E018`.
+
+  Diese Zeile stand hier zwischenzeitlich als Kartenunterschied
+  („K230 braucht EOT = Sektoren je Spur"). Das war falsch und ist ein
+  Lehrstück: der wirkliche Fehler lag in MSLOAD (siehe den nächsten
+  Punkt), und **jede** Änderung, die dessen Codelänge um sieben Byte
+  verschob, ließ die K230 starten — unabhängig davon, was sie tat. Wer
+  am verlagerten Teil eines Laders messen will, muss die Codelänge
+  gleichhalten (ein NOP als Ausgleich), sonst misst er die Verschiebung.
+- **Verlagerter Ladercode behält die Offsets der Übersetzung — ein
+  `cs:Variable` trifft dann die unteren Seiten, und was dort steht,
+  hängt von der Prozessorkarte ab (gefunden 19.11.2026).** MSLOAD
+  kopiert seinen Diskettencode nach `0:E200` und springt mit CS = 0
+  hinein; die Marken darin behalten ihre Offsets aus dem Quellsegment.
+  Die beiden Merker für das Doublestepping (Feinheit von Laufwerk und
+  Diskette, 48 gegen 96 tpi) wurden dadurch bei `0:0504` und `0:0505`
+  gelesen — dicht hinter der Vektortabelle, wo die Firmware ihre Daten
+  hält. Sind die beiden Bytes dort verschieden, verdoppelt der Lader
+  den Zylinder: er positioniert auf Zylinder 2 und verlangt dann
+  Zylinder 1, der uPD765 antwortet mit ST0 = 40h, ST1 = 04h, ST2 = 10h
+  (No Data, Wrong Cylinder), und der Lader wiederholt das endlos. Auf
+  der K230 waren sie verschieden, auf der K235 gleich — daher sah es
+  jahrelang nach einem Kartenunterschied im Controller aus. Der
+  Fehlerpfad schrieb zudem in die Firmwaredaten hinein.
+
+  **Für die Hardware heißt das:** wer wissen will, was ein Lader auf
+  einer anderen Prozessorkarte tut, muss die unteren Seiten ansehen.
+  0400h bis 05FFh ist nicht frei; die Firmware der 16-Bit-Karte legt
+  dort ab, und der Inhalt unterscheidet sich zwischen 32167 (K230/K231)
+  und 33473 (K235/K235+).
+
 - **Festgelegt (1.11.2026, berichtigt): je System ein eigener
   Mindestausbau — und er ist nicht derselbe.**
 
