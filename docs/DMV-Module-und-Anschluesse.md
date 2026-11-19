@@ -953,6 +953,42 @@ aber selbst; B: wird bis zu eine Umdrehung (200 ms) später bereit als
 A:. Wer nach dem Anlauf nur auf Bit 2 wartet und dann B: anspricht, ist
 zu früh — siehe `DMV_Wait` und `FD_WaitRdy` in `dmvbios.inc` ab v205.
 
+**Der Nachlauf von 14,9 s ist lang genug, dass ein Lader den Motor gar
+nicht selbst einschalten muss** (gemessen 19.11.2026). Das Z80-ROM
+schaltet ihn zum Lesen des Bootsektors ein, und bis ein Zweitstufenlader
+IO.SYS geladen hat, läuft er noch. MS-DOS 3.30 startet darum auf K230,
+K235 und K235+ auch ohne eigenen Motorzweig in MSLOAD. Nötig wird er
+erst, wenn ein Lader durch Wiederholungen über die 14,9 s kommt: dann
+ist das Laufwerk aus und meldet nicht bereit.
+
+### Sektorweise lesen kostet keine Umdrehung
+
+Gemessen am 19.11.2026 mit einem Lua-Tap auf Anschluss 51h, 360 KB,
+9 Sektoren je Spur, 300 U/min (200 ms je Umlauf, also 22,2 ms je
+Sektor): ein Treiber, der **je Sektor einen eigenen Lesebefehl** gibt —
+mit SEEK, DMA-Aufsatz, Motorprüfung und dem Abholen alter Ergebnisbytes
+davor —, erreicht einen Befehlsabstand von **20,93 ms**. Die ganze
+Befehlsfolge steckt also in der Lücke zwischen zwei Sektoren, der FDC
+verpasst keinen, und eine volle Spur ist in **einer** Umdrehung
+gelesen (9 Sektoren, 173 ms vom ersten bis zum letzten Befehl).
+
+**Auf beiden Prozessorkarten gleich:** 20,93 ms auf der K235+ (V20) und
+20,93 ms auf der K230 (8088), beide mit 5 MHz. Der langsamere Prozessor
+schafft die Befehlsfolge also auch.
+
+Daraus folgt: **Mehrsektor-Befehle über die ganze Spur bringen für die
+Übertragung nichts.** Wer die Ladezeit drücken will, muss an die Pausen
+*zwischen* den Anforderungen. Beim Start von MS-DOS 3.30 (Kopfzeile bis
+Eingabeaufforderung, 8,49 s, 145 Sektoren in 41 Bündeln) verteilt sie
+sich so: 2,99 s echtes Lesen, 5,50 s dazwischen — darin 28
+Zylinderwechsel mit zusammen 230 Schritten und danach je im Mittel eine
+halbe Umdrehung Wartezeit, weil FAT und Verzeichnis auf Zylinder 0
+liegen und die Daten auf Zylinder 8 bis 11. Die SEEK-Befehle selbst
+kosten nur 1,45 s, Median 0,5 ms: die meisten gehen auf den Zylinder,
+auf dem der Kopf schon steht. Der wirksamste Hebel ist deshalb die
+**Lage der Dateien auf dem Datenträger**, nicht die Form der
+Lesebefehle.
+
 **Bereit-Meldungen des µPD765:** Im Leerlauf fragt der Controller die
 Laufwerke ab; wird eines bereit (oder nicht mehr), legt er einen eigenen
 Interrupt mit **ST0 = C0h + Laufwerk** an (MAME `upd765.cpp`,
