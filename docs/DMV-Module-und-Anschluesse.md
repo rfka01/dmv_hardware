@@ -91,7 +91,7 @@ weil alles pollt — die Tastaturabfrage in `basinit.asm`, der FDC in
 | Start, Diskette, Platte, Tastatur, Bildschirm | unverändert |
 | Diskettenwechsel | über die Wechselleitung, unverändert richtig (Abschnitt 4) |
 | Datum | richtig (aus der K803 oder per Abfrage beim Start) |
-| Uhrzeit | aus der K803; **ohne** K803 bleibt sie auf dem Startwert stehen |
+| Uhrzeit | aus der K803; **ohne** K803 bleibt sie auf dem Startwert stehen. Gemessen 19.11.2026: mit K803 läuft sie auf der K230 richtig weiter (23:01:50 → 23:03:05 über 75 s), ohne sie steht sie bei 0:00:00 |
 | INT 1Ch, INT 1Ah AH=0 als Zeitquelle | nicht vorhanden |
 | interruptgetriebene Treiber, Maus über Interrupt | nicht möglich; die K806 lässt sich stattdessen pollen |
 
@@ -606,9 +606,22 @@ Steckplatz, die Hälfte aus Adressbit 3:
 | 4A | C0h–C7h | c12 | Festplattencontroller (K012 oder 3282) |
 | 4B | C8h–CFh | c12 | K803 (Echtzeituhr MM58167) |
 
-Die K801 ist auf jede der zehn Hälften schaltbar. Ihre Anleitung nennt
-als Standardeinstellungen Drucker, Kommunikation und Plotter; im
-MAME-Fork steht sie auf 2B.
+Die Tafel nennt die **übliche** Bestückung, keine Zwangslage: mehrere
+Karten tragen einen Schalterblock und sind auf jede der zehn Hälften
+stellbar. Die K801 ist es (ihre Anleitung nennt als
+Standardeinstellungen Drucker, Kommunikation und Plotter; im MAME-Fork
+steht sie auf 2B), und die **K803 ebenso** — ihre Anleitung zeigt alle
+zehn Schalterstellungen und sagt, der Adapter komme „in einen der
+Steckplätze 2 bis 6" (Doc 017-0033071, Abb. 1.3).
+
+> **Offen und noch zu klären:** Hier oben steht, die IFSEL-Leitung komme
+> vom **Steckplatz** und die Hälfte aus Adressbit 3 — das stammt aus der
+> Anleitung des Centronics-Adapters. Die Anleitung der K803 liest sich
+> so, als wähle der Schalterblock die **Nummer** frei. Beides ginge
+> zusammen, wenn die Karte den Schalter auf die IFSEL des Steckplatzes
+> eingestellt bekommen muß, in dem sie sitzt — behauptet ist das aber
+> nirgends. Am Schaltplan (017-0031865) nachsehen, bevor sich jemand
+> darauf verläßt.
 
 Notizen der Tafel: jede Portadresse darf im System nur einmal benutzt
 werden, und für Plotter ist entweder K213 oder K801 zu verwenden.
@@ -960,6 +973,67 @@ IO.SYS geladen hat, läuft er noch. MS-DOS 3.30 startet darum auf K230,
 K235 und K235+ auch ohne eigenen Motorzweig in MSLOAD. Nötig wird er
 erst, wenn ein Lader durch Wiederholungen über die 14,9 s kommt: dann
 ist das Laufwerk aus und meldet nicht bereit.
+
+### K803, die Echtzeituhr
+
+Quelle für alles hier: NCRs Bedienungsanleitung „Echtzeituhr
+(K803-V001)", Doc 017-0033071. Der Baustein ist ein MM58167AN.
+
+**Basis ist C8h, also IFSEL 4B — und das ist belegt, nicht vermutet.**
+Seite UHR-1: „Die Software zur Echtzeituhr, die unter dem Betriebssystem
+p-UCSD zur Verfügung steht, verwendet die IFSEL-Nummer 4B (Ports C8 bis
+CF) als Standardvoreinstellung. Zum Zeitpunkt der Auslieferung sind die
+Wahlschalter des Adapters auf diesen Wert eingestellt." NCRs
+`TIMDRIVE.SYS` aus MS-DOS 2.11 bekommt denselben Wert auf der
+DEVICE-Zeile (`C8 00 00`). Ein Betriebssystem darf C8h also erwarten.
+
+**Die Karte ist aber umstellbar, und der Steckplatz sagt nichts.** Sie
+kommt „in einen der Steckplätze 2 bis 6"; welche Hälfte sie belegt,
+entscheidet allein der Schalterblock auf der Platine, und der kennt
+alle zehn IFSEL-Nummern (Abb. 1.3: 0A, 0B, 1A, 1B, 2A, 2B, 3A, 3B, 4A,
+4B). Wer umstrappt, kollidiert mit dem Modul, dem die Hälfte sonst
+gehört — 4A wäre der Plattencontroller. NCRs eigenes BASIC-Beispiel
+(Seite UHR-15) sucht die Nummer deshalb ab und legt die gefundene Basis
+auf der Diskette ab. Für einen Lader taugt das Absuchen nicht: schon
+das Lesen schreibt zuerst den Adresslatch und könnte ein fremdes Modul
+verstellen.
+
+Registerplan (Abb. 2.1): ein Zugriff besteht aus zwei Befehlen — erst
+`OUT Basis,<Adreßspeicher 0..5>`, dann Lesen oder Schreiben auf
+`Basis+4` bis `Basis+7`. Adreßspeicher 0 und 1 sind die Zähler, 2 und 3
+die Alarm-Latches, 4 Interruptstatus/-befehl und die beiden
+Rücksetzregister, 5 das Umstellungskontrollbit, der „GO"-Befehl und der
+Bereitschaftsinterrupt. Die Umrechnung auf einen fortlaufenden Index
+steht in `dmv_os/os/msdos33/src/SRC/BIOS/dmvclk.inc`.
+
+**Register 08h bis 0Fh sind kein freies RAM**, sondern die acht
+Alarm-Latches (08h = Latch 1/10000 Sekunden, 0Fh = Latch Monat). Der
+Baustein vergleicht sie ständig mit den Zählern. NCRs `TIMDRIVE.SYS`
+legt Jahr und Monatsvermerk trotzdem dort ab, und wir folgen ihm — wer
+den Alarm der K803 benutzt, überschreibt damit allerdings beides.
+
+**Das Umstellungskontrollbit** (Adreßspeicher 5, `Basis+4`) ist gesetzt,
+solange ein Zählerregister gerade umspringt. Seite UHR-14 rät
+ausdrücklich, es abzufragen und den Lesezugriff zu wiederholen, wenn es
+gesetzt war. Wer das unterläßt, liest irgendwann eine halb umgestellte
+Zeit — und beim Datum einen Monat, der schon weiter ist als der Tag.
+
+**Die Uhr ist gepuffert und hält die Zeit über das Ausschalten.** Auf
+echter Hardware belegt mit DOS 2.11 und NCRs `TIMDRIVE.SYS` (rfka01,
+19.11.2026). Die Anleitung nennt die Daten (Seite UHR-5): ein
+Akkumulator mit 3,6 V und 60 mAh, der im Betrieb geladen wird und bei
+konstant 20 °C rund **180 Tage** trägt. Die Uhr läuft auch weiter, wenn
+der Adapter aus der Maschine gezogen ist. In MAME gilt das nur eingeschränkt: dort überleben allein
+die RAM-Register (Jahr in 0Fh, Monatsvermerk in 08h) einen Neustart,
+Uhrzeit und Tag/Monat kommen bei jedem Lauf frisch von der Wirtsuhr.
+Wer die Pufferung prüfen will, muss das an der Maschine tun.
+
+Ein Jahr kennt der MM58167AN nicht. NCR legt es in das RAM-Register
+0Fh (Jahre seit 1980, binär) und führt in 08h einen Monatsvermerk mit
+(Monat binär mal 16); liest man einen Monat, der kleiner ist als der
+Vermerk, ist ein Jahreswechsel vergangen. Am 19.11.2026 in MAME
+nachgestellt: 31.12.2026 23:59:30 wird zu Freitag, 1.01.2027 0:00:49,
+Wochentag inbegriffen.
 
 ### Sektorweise lesen kostet keine Umdrehung
 
