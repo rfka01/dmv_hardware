@@ -1011,6 +1011,41 @@ Alarm-Latches (08h = Latch 1/10000 Sekunden, 0Fh = Latch Monat). Der
 Baustein vergleicht sie ständig mit den Zählern. NCRs `TIMDRIVE.SYS`
 legt Jahr und Monatsvermerk trotzdem dort ab, und wir folgen ihm — wer
 den Alarm der K803 benutzt, überschreibt damit allerdings beides.
+Umgekehrt ist der Alarm, solange dort eigene Werte liegen, praktisch
+abgeschaltet: er löst laut Seite UHR-11 nur aus, wenn **alle** nicht
+übereinstimmenden Alarmregister auf „ignorieren" (dezimal 204) stehen.
+
+**Und sie sind keine vollen Bytes.** Abb. 2.2 auf Seite UHR-10:
+„Unbelegte Bits … werden bei Lesezugriffen als logisch 0 zurückgegeben
+und bei **Schreibzugriffen ignoriert**." Wer die Latches als Speicher
+benutzt, hat also nicht acht Bit je Register:
+
+| Latch | Index | nutzbare Bits |
+|---|---|---|
+| 1/10000 s | 08h | 4 (nur D4–D7) |
+| 1/100 s | 09h | **8** |
+| Sekunde | 0Ah | 7 |
+| Minute | 0Bh | 7 |
+| Stunde | 0Ch | 6 |
+| Wochentag | 0Dh | 3 |
+| Tag des Monats | 0Eh | 6 |
+| Monat | 0Fh | **5** (D0–D3 und D4) |
+
+Aus acht Bytes werden damit rund 48 Bit, ungleich verteilt; 09h ist das
+einzige vollständige.
+
+> **Offen, und auf echter Hardware zu prüfen:** das Jahr liegt bei NCR
+> wie bei uns im Monats-Latch 0Fh, und der hat fünf Bit — Jahre seit
+> 1980 von 0 bis 31, also **nur bis 2011**. 2026 wird als 46 (`2Eh`)
+> geschrieben; Bit D5 ist unbelegt, wird verworfen, und zurück käme 14,
+> also 1994. In MAME fällt das nicht auf, weil die Emulation die
+> unbelegten Bits nicht maskiert (gemessen 20.11.2026: 31.12.2026 wurde
+> sauber zu 1.01.2027). Zu prüfen: Datum auf 2026 setzen, ausschalten,
+> einschalten, `DATE`. Steht dort 1994, ist es bestätigt — und dann
+> betrifft es NCRs `TIMDRIVE.SYS` genauso, denn von dort stammt die
+> Belegung. Ein Umzug des Jahres auf 09h (acht Bit, bis 2235) würde es
+> lösen, aber die Verträglichkeit mit NCRs DOS 2.11 aufgeben. Noch
+> nicht entschieden.
 
 **Das Umstellungskontrollbit** (Adreßspeicher 5, `Basis+4`) ist gesetzt,
 solange ein Zählerregister gerade umspringt. Seite UHR-14 rät
