@@ -1072,6 +1072,42 @@ auch dessen Ausstieg wieder von Platte startet — an NCRs eigenen ROMs
 können wir nichts ändern). Dasselbe gilt für alles, was noch kommt:
 Bootmanager, CP/M-Systeme, Werkzeuge, die neu starten.
 
+### Wer zum Z80 zurückgeht, muß auch Bank 0 wählen
+
+Gefunden am 20.11.2026 unter DR DOS 3.41: nach FDISK und nach REBOOT
+startete die Maschine nicht mehr. Der Schirm wurde gelöscht, die
+Diagnosedioden 4 und 8 leuchteten (`EEh`, „16-bit processor error“
+in `dmv.cpp`, `leds_w`). Vom Start von Platte aus erschien statt dessen
+`16 BIT NOT IMPLEMENTED, TRY 8 BIT O.S. DISK`.
+
+Das Register auf **E0h–E7h** wählt die Bank für den DMA **und** die
+Bank, die der Z80 sieht (`DMV-Module-und-Anschluesse.md`, Abschnitt 3).
+Der Diskettentreiber setzt es für jeden Transfer auf die Bank des
+Puffers und läßt es dort stehen. Liegt der letzte Puffer oberhalb von
+64 KB (unter DR DOS die Regel), sieht der neu gestartete Z80 diese
+Bank statt Bank 0:
+
+- Er schreibt das Kommando für den Test der 8088 (CB16, `0:FE04`) in
+  seine Bank. In MAME gemessen: der Z80 sieht dort `55h`, die 8088 in
+  Bank 0 weiter `00h`.
+- Die 8088 wartet in der Schleife des Karten-ROMs bei FF00:0018, liest
+  `0` und springt in den Monitor (ROM 33473, Einsprung `0632h`). Dort
+  wartet sie bei `02E0h` auf das Paßwort.
+- Der Z80 wartet bei `05FAh` auf die Antwort, die nie kommt, und meldet
+  den Fehler.
+
+Unter MS-DOS 3.3 fiel es nicht auf, weil dessen Puffer in Bank 0
+liegen. Es trifft aber jedes System, sobald ein Programm aus einer
+oberen Bank von Diskette gelesen hat.
+
+**Regel:** Wer die Maschine an den Z80 zurückgibt, schreibt vorher auf
+Anschluß `E0h` (Bank 0) und `A0h` auf `C6h` (Einheit 0, siehe oben).
+Gegenprobe in MAME: REBOOT.COM mit `OUT E0h` startet unter DR DOS
+sauber neu (alle Dioden aus, `FFh`). Besser noch stellt der
+Diskettentreiber selbst nach jedem Transfer E0h zurück, wie Abschnitt 3
+von `DMV-Module-und-Anschluesse.md` es verlangt; dann sieht der Z80
+auch bei Firmwareaufrufen nie eine fremde Bank.
+
 ### Der Diskettenwechsel braucht keine Zeitmessung
 
 Anschluss 13h Bit 3 ist die Interruptleitung des µPD765, und der
